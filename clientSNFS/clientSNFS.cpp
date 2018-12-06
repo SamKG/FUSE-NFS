@@ -31,7 +31,7 @@ void socket_test(int id){
 
     // connect to server
     err = connect(sock, (struct sockaddr*) &server_addr, sizeof(server_addr));
-    if(connect < 0){
+    if(err < 0){
         printf("Error connecting to server, error%d\n", errno);
     }
     
