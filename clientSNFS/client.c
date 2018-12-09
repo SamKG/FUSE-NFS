@@ -54,6 +54,29 @@ static struct fuse_operations client_oper = {
 
 int main(int argc, char *argv[])
 {
+
+	int argcpassed = 0;	
+	char** argvpassed = (char**) malloc(sizeof(char*)*256);	
 	
-	return fuse_main(argc, argv, &client_oper, NULL);
+	// Parse out port and address to use	
+	char* portString, addressString;
+	for (int i = 0 ; i < argc ; i++){
+		char* curr = argv[i];
+		if (strcmp(curr,"-port") == 0)}
+			portString = argv[i++];
+		}
+		else if(strcmp(curr,"-address") == 0){
+			addressString = argv[i++];	
+		}
+		else{
+			argvpassed[argcpassed++] = curr;
+		}
+	}
+	
+	netinfo = (networkInfo*) malloc(sizeof(networkInfo));	
+	netinfo.port = atoi(portString);
+	netinfo.address = (char*) malloc(sizeof(char)*strlen(addressString)+1);
+	memcpy(netinfo.address,addressString,strlen(addressString)+1);
+	// Run fuse_main with the other parameters
+	return fuse_main(argcpassed, argvpassed, &client_oper, NULL);
 }
