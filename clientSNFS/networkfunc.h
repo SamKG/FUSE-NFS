@@ -1,6 +1,7 @@
 // This file implements network functions for usage in FUSE 
 
 #define FUSE_USE_VERSION 26
+#define h_addr h_addr_list[0]
 #include <stdio.h>
 #include <fuse.h>
 #include <stdlib.h>

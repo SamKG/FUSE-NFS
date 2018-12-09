@@ -49,7 +49,7 @@ rpcRecv network_open(const networkInfo* netinfo,const char* path, const int flag
 	int sockfd = connection_setup(netinfo);
 	rpcCall rpcinfo;
 	rpcinfo.procedure = OPEN;
-	rpcinfo.path = path;
+	memcpy(rpcinfo.path, path, strlen(path));
 	rpcinfo.flags = flags;	
 	
 	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
@@ -59,12 +59,11 @@ rpcRecv network_open(const networkInfo* netinfo,const char* path, const int flag
 	close(sockfd);
 	return received;
 }
-rpcRecv network_getattr(networkInfo* netinfo, const char* path){
+rpcRecv network_getattr(const networkInfo* netinfo, const char* path){
 	int sockfd = connection_setup(netinfo);
 	rpcCall rpcinfo;
 	rpcinfo.procedure = GETATTR;
-	rpcinfo.path = path;
-	rpcinfo.flags = flags;	
+	memcpy(rpcinfo.path,path,strlen(path));
 	
 	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
 	rpcRecv received;
