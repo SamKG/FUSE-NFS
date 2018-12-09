@@ -17,4 +17,13 @@
 #define RELEASEDIR  11
 #define MKDIR       12
 
+typedef struct rpcCall{
+	int procedure;
+	char path[1024];
+	int flags;
+} rpcCall;
+
+typedef struct rpcRecv{
+	int retval;
+} rpcRecv;
 #endif

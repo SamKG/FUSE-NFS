@@ -21,14 +21,6 @@ typedef struct networkInfo {
 	int port;
 	char* address;
 } networkInfo;
-typedef struct rpcCall{
-	int procedure;
-	char path[1024];	
-	int flags;
-} rpcCall;
-typedef struct rpcRecv{
-	int retval;
-} rpcRecv;
 // Implement network functions below
 
 // sets up socket connection, returns socket descriptor
