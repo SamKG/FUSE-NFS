@@ -8,24 +8,17 @@ See the file COPYING.
 gcc -Wall client.c `pkg-config fuse --cflags --libs` -o client
 */
 
-#define FUSE_USE_VERSION 26
-
-#include <fuse.h>
-#include <stdio.h>
-#include <string.h>
-#include <errno.h>
-#include <fcntl.h>
 //We need to write these header functions (that implement network calls to server)
 #include "networkfunc.h"
 
 static const char *client_str = "Hello World!\n";
 static const char *client_path = "/client";
-static const networkInfo* netinfo = NULL;
+static networkInfo* netinfo = NULL;
 
 static int client_getattr(const char *path, struct stat *stbuf)
 {
-
-	return network_getattr(netinfo,path,stbuf);
+	rpcRecv received = network_getattr(netinfo,path);
+	return 0;
 }
 
 static int client_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
@@ -36,7 +29,8 @@ static int client_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 
 static int client_open(const char *path, struct fuse_file_info *fi)
 {
-	return network_open(netinfo, path, fi);
+	rpcRecv received = network_open(netinfo,path, O_RDWR);
+	return 0; 
 }
 
 static int client_read(const char *path, char *buf, size_t size, off_t offset,
@@ -62,7 +56,7 @@ int main(int argc, char *argv[])
 	char* portString, addressString;
 	for (int i = 0 ; i < argc ; i++){
 		char* curr = argv[i];
-		if (strcmp(curr,"-port") == 0)}
+		if (strcmp(curr,"-port") == 0){
 			portString = argv[i++];
 		}
 		else if(strcmp(curr,"-address") == 0){
@@ -74,9 +68,9 @@ int main(int argc, char *argv[])
 	}
 	
 	netinfo = (networkInfo*) malloc(sizeof(networkInfo));	
-	netinfo.port = atoi(portString);
-	netinfo.address = (char*) malloc(sizeof(char)*strlen(addressString)+1);
-	memcpy(netinfo.address,addressString,strlen(addressString)+1);
+	netinfo->port = atoi(portString);
+	netinfo->address = (char*) malloc(sizeof(char)*strlen(addressString)+1);
+	memcpy(netinfo->address,addressString,strlen(addressString)+1);
 	// Run fuse_main with the other parameters
 	return fuse_main(argcpassed, argvpassed, &client_oper, NULL);
 }

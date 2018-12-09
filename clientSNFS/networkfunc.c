@@ -28,7 +28,7 @@ int connection_setup(networkInfo* info){
 			close(sock);
 			return -1;
 		}
-		memcpy(&server_addr.sin_addr, hostp-h_addr, sizeof(server_addr.sin_addr));
+		memcpy(&server_addr.sin_addr, hostp->h_addr, sizeof(server_addr.sin_addr));
 	}
 
 	// connect to server
