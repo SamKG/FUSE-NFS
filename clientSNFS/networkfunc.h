@@ -27,3 +27,5 @@ typedef struct networkInfo {
 int connection_setup(networkInfo* info);
 rpcRecv network_open(const networkInfo*, const char*, const int);
 rpcRecv network_getattr(const networkInfo*, const char*);
+rpcRecv network_read(const networkInfo*, const char*, char*, size_t, off_t, struct fuse_file_info*);
+rpcRecv network_readdir(const networkInfo*, const char*, void*, fuse_fill_dir_t, off_t, struct fuse_file_info*);
