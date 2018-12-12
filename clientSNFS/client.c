@@ -37,7 +37,7 @@ static char* edit_path(const char *path){
 
 static int client_getattr(const char *path, struct stat *stbuf)
 {
-	path = shorten_path(path);
+	path = edit_path(path);
 	rpcRecv received = network_getattr(netinfo,path);
 	return 0;
 }
@@ -45,14 +45,14 @@ static int client_getattr(const char *path, struct stat *stbuf)
 static int client_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 		off_t offset, struct fuse_file_info *fi)
 {
-	path = shorten_path(path);
+	path = edit_path(path);
 	rpcRecv received = network_readdir(netinfo, path, buf, offset);
 	return 0;
 }
 
 static int client_open(const char *path, struct fuse_file_info *fi)
 {
-	path = shorten_path(path);
+	path = edit_path(path);
 	rpcRecv received = network_open(netinfo,path, O_RDWR);
 	if(received.err != 0)
 		return -err;
@@ -62,7 +62,7 @@ static int client_open(const char *path, struct fuse_file_info *fi)
 static int client_read(const char *path, char *buf, size_t size, off_t offset,
 		struct fuse_file_info *fi)
 {
-	path = shorten_path(path);
+	path = edit_path(path);
 	rpcRecv received =  network_read(netinfo,path,buf,size,offset);
 	return 0;
 }
