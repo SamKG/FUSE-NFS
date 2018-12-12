@@ -13,11 +13,17 @@ using namespace std;
 
 char[256] mount_path = "";
 
+char* edit_path(const char* path){
+    char* new_path = (char*) malloc(sizeof(char) * (strlen(path) + strlen(mount_path) + 1));
+    strcat(new_path, mount_path);
+    strcat(new_path, path);
+
+    return new_path;
+}
+
 void server_open(int sock, const char* path, const int flags){
     // first edit path to indicate server side mount point
-    char[1024] s_path = "";
-    strcat(s_path, mount_path);
-    strcat(s_path, path);
+    path = edit_path(path);
 
     // execute operation and put relevant results into return struct
     rpcRecv ret;
