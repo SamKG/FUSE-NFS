@@ -21,9 +21,12 @@ typedef struct rpcCall{
 	int procedure;
 	char path[1024];
 	int flags;
+	int size;
 } rpcCall;
 
 typedef struct rpcRecv{
 	int retval;
+	int err;
+	int dataLen;
 } rpcRecv;
 #endif

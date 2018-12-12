@@ -59,6 +59,7 @@ rpcRecv network_open(const networkInfo* netinfo,const char* path, const int flag
 	close(sockfd);
 	return received;
 }
+// TODO: Manually fill in stat structure with received data!
 rpcRecv network_getattr(const networkInfo* netinfo, const char* path){
 	int sockfd = connection_setup(netinfo);
 	rpcCall rpcinfo;
@@ -69,6 +70,99 @@ rpcRecv network_getattr(const networkInfo* netinfo, const char* path){
 	rpcRecv received;
 	recv(sockfd, (void*) (&received), sizeof(rpcRecv), 0);
 		
+	close(sockfd);
+	return received;
+}
+rpcRecv network_flush(const networkInfo* netinfo, const char* path){
+	int sockfd = connection_setup(netinfo);
+	rpcCall rpcinfo;
+	rpcinfo.procedure = FLUSH;
+	memcpy(rpcinfo.path,path,strlen(path));
+	
+	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
+	rpcRecv received;
+	recv(sockfd, (void*) (&received), sizeof(rpcRecv), 0);
+		
+	close(sockfd);
+	return received;
+}
+rpcRecv network_release(const networkInfo* netinfo, const char* path){
+	int sockfd = connection_setup(netinfo);
+	rpcCall rpcinfo;
+	rpcinfo.procedure = RELEASE;
+	memcpy(rpcinfo.path,path,strlen(path));
+	
+	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
+	rpcRecv received;
+	recv(sockfd, (void*) (&received), sizeof(rpcRecv), 0);
+		
+	close(sockfd);
+	return received;
+}
+rpcRecv network_truncate(const networkInfo* netinfo, const char* path, const int size){
+	int sockfd = connection_setup(netinfo);
+	rpcCall rpcinfo;
+	rpcinfo.procedure = TRUNCATE;
+	rpcinfo.size = size;
+	memcpy(rpcinfo.path,path,strlen(path));
+	
+	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
+	rpcRecv received;
+	recv(sockfd, (void*) (&received), sizeof(rpcRecv), 0);
+		
+	close(sockfd);
+	return received;
+}
+rpcRecv network_read(const networkInfo* netinfo, const char* path, char* buff, size_t size, off_t offset){
+	int sockfd = connection_setup(netinfo);
+	rpcCall rpcinfo;
+	rpcinfo.procedure = READ;
+	rpcinfo.size = size;
+	memcpy(rpcinfo.path,path,strlen(path));
+	
+	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
+	rpcRecv received;
+	// The server should set received.dataLen to be the number of bytes read from file
+	recv(sockfd, (void*) (&received), sizeof(rpcRecv), 0);
+	// Now we have to explicitly read data from server into buffer
+	recv(sockfd, (void*) buff, received.dataLen,0);	
+	close(sockfd);
+	return received;
+}
+rpcRecv network_write(const networkInfo* netinfo, const char* path, char* buff, size_t size, off_t offset){
+	int sockfd = connection_setup(netinfo);
+	rpcCall rpcinfo;
+	rpcinfo.procedure = WRITE;
+	rpcinfo.size = size;
+	memcpy(rpcinfo.path,path,strlen(path));
+	
+	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
+	// Now we send string data to server
+	send(sockfd, buff, size, 0);
+	rpcRecv received;
+	recv(sockfd, (void*) (&received), sizeof(rpcRecv), 0);
+	close(sockfd);
+	return received;
+}
+rpcRecv network_opendir(const networkInfo* netinfo, const char* path){
+	int sockfd = connection_setup(netinfo);
+	rpcCall rpcinfo;
+	rpcinfo.procedure = OPENDIR;
+	memcpy(rpcinfo.path,path,strlen(path));
+	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
+	rpcRecv received;
+	recv(sockfd, (void*) (&received), sizeof(rpcRecv), 0);
+	close(sockfd);
+	return received;
+}
+rpcRecv network_readdir(const networkInfo* netinfo, const char* path, void* buf, off_t offset){
+	int sockfd = connection_setup(netinfo);
+	rpcCall rpcinfo;
+	rpcinfo.procedure = READDIR;
+	memcpy(rpcinfo.path,path,strlen(path));
+	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
+	rpcRecv received;
+	recv(sockfd, (void*) (&received), sizeof(rpcRecv), 0);
 	close(sockfd);
 	return received;
 }
