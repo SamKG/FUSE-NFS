@@ -24,7 +24,8 @@ static int client_getattr(const char *path, struct stat *stbuf)
 static int client_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 		off_t offset, struct fuse_file_info *fi)
 {
-	return network_readdir(netinfo, path, buf, filler, offset, fi);
+	rpcRecv received = network_readdir(netinfo, path, buf, offset);
+	return 0;
 }
 
 static int client_open(const char *path, struct fuse_file_info *fi)
@@ -36,7 +37,8 @@ static int client_open(const char *path, struct fuse_file_info *fi)
 static int client_read(const char *path, char *buf, size_t size, off_t offset,
 		struct fuse_file_info *fi)
 {
-	return network_read(netinfo,path,buf,size,offset,fi);
+	rpcRecv received =  network_read(netinfo,path,buf,size,offset);
+	return 0;
 }
 
 static struct fuse_operations client_oper = {
@@ -53,7 +55,8 @@ int main(int argc, char *argv[])
 	char** argvpassed = (char**) malloc(sizeof(char*)*256);	
 	
 	// Parse out port and address to use	
-	char* portString, addressString;
+	char* portString;
+	char* addressString;
 	for (int i = 0 ; i < argc ; i++){
 		char* curr = argv[i];
 		if (strcmp(curr,"-port") == 0){

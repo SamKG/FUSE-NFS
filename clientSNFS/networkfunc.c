@@ -1,6 +1,6 @@
 #include "networkfunc.h"
 
-int connection_setup(networkInfo* info){
+int connection_setup(const networkInfo* info){
 	printf("Opening socket!\n");
 	// define variables
 	int sock;                         // socket descriptor for network socket
@@ -44,6 +44,7 @@ int connection_setup(networkInfo* info){
 int connection_close(int sockfd){
 	printf("Closing socket!\n");
 	close(sockfd);	
+	return 0;
 }
 rpcRecv network_open(const networkInfo* netinfo,const char* path, const int flags){
 	int sockfd = connection_setup(netinfo);

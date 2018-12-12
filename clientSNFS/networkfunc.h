@@ -24,8 +24,13 @@ typedef struct networkInfo {
 // Implement network functions below
 
 // sets up socket connection, returns socket descriptor
-int connection_setup(networkInfo* info);
+int connection_setup(const networkInfo* info);
 rpcRecv network_open(const networkInfo*, const char*, const int);
 rpcRecv network_getattr(const networkInfo*, const char*);
-rpcRecv network_read(const networkInfo*, const char*, char*, size_t, off_t, struct fuse_file_info*);
-rpcRecv network_readdir(const networkInfo*, const char*, void*, fuse_fill_dir_t, off_t, struct fuse_file_info*);
+rpcRecv network_flush(const networkInfo* netinfo, const char* path);
+rpcRecv network_release(const networkInfo* netinfo, const char* path);
+rpcRecv network_truncate(const networkInfo* netinfo, const char* path, const int size);
+rpcRecv network_read(const networkInfo* netinfo, const char* path, char* buff, size_t size, off_t offset);
+rpcRecv network_write(const networkInfo* netinfo, const char* path, char* buff, size_t size, off_t offset);
+rpcRecv network_opendir(const networkInfo* netinfo, const char* path);
+rpcRecv network_readdir(const networkInfo* netinfo, const char* path, void* buf, off_t offset);
