@@ -50,6 +50,7 @@ void server_read(int sock, const char* path, size_t size, off_t offset){
 
     // execute operation and put relevant results into return struct
     rpcRecv ret;
+    int res;
     char* buf = (char*)malloc(size);
     int fd = open(path, O_RDONLY);
 
@@ -61,7 +62,7 @@ void server_read(int sock, const char* path, size_t size, off_t offset){
     }
     
     // file successfully opened
-    int res = pread(fd, buf, size, offset);
+    res = pread(fd, buf, size, offset);
     if(res < 0){
         ret.retval = res;
         ret.err = errno;
