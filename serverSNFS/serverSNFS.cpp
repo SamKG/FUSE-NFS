@@ -27,22 +27,8 @@ void server_ping(int sock){
 	send(sock, &ret, sizeof(ret), 0);
 }
 void server_open(int sock, const char* path, const int flags){
-	<<<<<<< HEAD
-		// first edit path to indicate server side mount point
-		path = edit_path(path);
-
-	// execute operation and put relevant results into return struct
-	rpcRecv ret;
-	ret.retval = open(path, flags);
-	if(ret.retval == -1)
-		ret.err = errno;
-	else ret.err = 0;
-
-	// send return struct to client
-	send(sock, &ret, sizeof(ret), 0);
-	=======
-		// first edit path to indicate server side mount point
-		path = edit_path(path);
+	// first edit path to indicate server side mount point
+	path = edit_path(path);
 
 	// execute operation and put relevant results into return struct
 	rpcRecv ret;
@@ -56,7 +42,6 @@ void server_open(int sock, const char* path, const int flags){
 
 	// send return struct to client
 	send(sock, &ret, sizeof(ret), 0);
-	>>>>>>> 123f188d6f135c1d185801f813f8d9f6e4d58286
 }
 
 void server_read(int sock, const char* path, size_t size, off_t offset){
