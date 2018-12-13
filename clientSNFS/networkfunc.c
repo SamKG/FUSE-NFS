@@ -122,7 +122,7 @@ rpcRecv network_read(const networkInfo* netinfo, const char* path, char* buff, s
 	rpcinfo.offset = offset;
 	strcpy(rpcinfo.path, path);
 	
-	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
+	send(sockfd, &rpcinfo, sizeof(rpcCall), 0); 
 	rpcRecv received;
 	// The server should set received.retval to be the number of bytes read from file
 	recv(sockfd, (void*) (&received), sizeof(rpcRecv), 0);
@@ -143,7 +143,7 @@ rpcRecv network_write(const networkInfo* netinfo, const char* path, char* buff, 
 	rpcinfo.size = size;
 	strcpy(rpcinfo.path,path);
 	
-	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
+	send(sockfd, &rpcinfo, sizeof(rpcCall), 0); 
 	// Now we send string data to server
 	send(sockfd, buff, size, 0);
 	rpcRecv received;
@@ -156,7 +156,7 @@ rpcRecv network_opendir(const networkInfo* netinfo, const char* path){
 	rpcCall rpcinfo;
 	rpcinfo.procedure = OPENDIR;
 	strcpy(rpcinfo.path,path);
-	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
+	send(sockfd, &rpcinfo, sizeof(rpcCall), 0); 
 	rpcRecv received;
 	recv(sockfd, (void*) (&received), sizeof(rpcRecv), 0);
 	close(sockfd);
@@ -167,7 +167,7 @@ rpcRecv network_readdir(const networkInfo* netinfo, const char* path, void* buf,
 	rpcCall rpcinfo;
 	rpcinfo.procedure = READDIR;
 	strcpy(rpcinfo.path,path);
-	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
+	send(sockfd, &rpcinfo, sizeof(rpcCall), 0); 
 	rpcRecv received;
 	recv(sockfd, (void*) (&received), sizeof(rpcRecv), 0);
 	struct dirent* dataArray = (struct dirent*) malloc(sizeof(struct dirent)*received.dataLen);	

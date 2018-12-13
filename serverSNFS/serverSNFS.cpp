@@ -89,6 +89,50 @@ void server_read(int sock, const char* path, size_t size, off_t offset){
         send(sock, &ret, sizeof(ret), 0);
 }
 
+void server_write(int sock, const char* path, size_t size, off_t offset){
+    // first edit path to indicate server side mount point
+    path = edit_path(path);
+
+    // execute operation and put relevant results into return struct
+    rpcRecv ret;
+    int res;
+    char* buf = (char*)malloc(size);
+    int fd = open(path, O_RDONLY);
+
+    if(fd < 0){
+        // set error values, send empty data
+        ret.retval = fd;
+        ret.err = errno;
+        goto ERROR;
+    }
+
+    // file opened, receive data to be written
+    recv(sock, buf, size, 0);
+    res = pwrite(fd, buf, size, offset);
+    if(res < 0){
+        ret.retval = res;
+        ret.err = errno;
+        close(fd);
+        goto ERROR;
+    }
+
+    // file successfully read
+    ret.retval = res;
+    ret.err = 0;
+
+    // close file
+    close(fd);
+
+    // send return struct to client
+    send(sock, &ret, sizeof(ret), 0);
+    free(buf);
+    return;
+
+    ERROR:
+        free(buf);
+        send(sock, &ret, sizeof(ret), 0);
+}
+
 void connection_handler(int sock){
 	rpcCall rpcinfo;
 	recv(sock, &rpcinfo, sizeof(rpcinfo), 0);
