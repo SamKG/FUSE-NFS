@@ -27,7 +27,7 @@ typedef struct networkInfo {
 // sets up socket connection, returns socket descriptor
 int connection_setup(const networkInfo* info);
 rpcRecv network_open(const networkInfo*, const char*, const int);
-rpcRecv network_getattr(const networkInfo*, const char*);
+rpcRecv network_getattr(const networkInfo*, const char*, struct stat*);
 rpcRecv network_flush(const networkInfo* netinfo, const char* path);
 rpcRecv network_release(const networkInfo* netinfo, const char* path);
 rpcRecv network_truncate(const networkInfo* netinfo, const char* path, const int size);
