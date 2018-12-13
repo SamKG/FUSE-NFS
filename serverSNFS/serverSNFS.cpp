@@ -227,7 +227,7 @@ int main(int argc, char** argv){
 
 	// bind server socket to address and port
 	err = bind(s_sock, (struct sockaddr*) &server_addr, sizeof(server_addr));
-	if (bind < 0){
+	if (err < 0){
 		printf("Error binding server, error%d\n", errno);
 	}
 
