@@ -50,7 +50,7 @@ int connection_close(int sockfd){
 rpcRecv network_create(const networkInfo* netinfo, const char *path, mode_t mode){
 	int sockfd = connection_setup(netinfo);
 	rpcCall rpcinfo;
-	rpcinfo.procedure = OPEN;
+	rpcinfo.procedure = CREATE;
 	rpcinfo.mode = mode;
 	strcpy(rpcinfo.path, path);
 
