@@ -87,6 +87,15 @@ static int client_write(const char *path, const char *buf, size_t size, off_t of
 	return received.retval;
 }
 
+static int client_flush(const char *path, struct fuse_file_info *fi)
+{
+	path = edit_path(path);
+	rpcRecv received = network_flush(netinfo, path);
+	if(received.retval < 0)
+		return -received.err;
+	return 0;
+}
+
 static struct fuse_operations client_oper = {
 	.create		= client_create,
 	.getattr	= client_getattr,
@@ -94,6 +103,7 @@ static struct fuse_operations client_oper = {
 	.open		= client_open,
 	.read		= client_read,
 	.write		= client_write,
+	.flush 		= client_flush,
 };
 
 int main(int argc, char *argv[])

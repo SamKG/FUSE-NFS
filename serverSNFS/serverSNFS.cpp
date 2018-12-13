@@ -180,6 +180,37 @@ void server_getattr(int sock, const char *path){
     send(sock, &st, sizeof(st), 0);
 }
 
+void server_flush(int sock, const char *path){
+    // edit path
+    path = edit_path(path);
+
+    // open file first
+    rpcRecv ret;
+    int res = open(path, O_RDWR);
+
+    // error check
+    if(res < 0){
+        ERROR:
+            ret.retval = res;
+            ret.err = errno;
+            send(sock, &ret, sizeof(ret), 0);
+            return;
+    }
+
+    // open successful
+    res = fsync(res);
+    if(res < 0){
+        goto ERROR;
+    }
+
+    // set return struct values
+    ret.retval = res;
+    ret.err = 0;
+
+    // send return struct
+    send(sock, &ret, sizeof(ret), 0);
+}
+
 void connection_handler(int sock){
 	rpcCall rpcinfo;
 	recv(sock, &rpcinfo, sizeof(rpcinfo), 0);
@@ -194,6 +225,9 @@ void connection_handler(int sock){
 		case READ:
 			server_read(sock, rpcinfo.path, rpcinfo.size, rpcinfo.offset);
 			break;
+        case FLUSH:
+            server_flush(sock, rpcinfo.path);
+            break;
         case WRITE:
             server_write(sock, rpcinfo.path, rpcinfo.size, rpcinfo.offset);
             break;
