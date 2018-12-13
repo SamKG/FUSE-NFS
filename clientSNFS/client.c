@@ -140,8 +140,14 @@ int main(int argc, char *argv[])
 	netinfo->port = atoi(portString);
 	netinfo->address = (char*) malloc(sizeof(char)*strlen(addressString)+1);
 	memcpy(netinfo->address,addressString,strlen(addressString)+1);
-	printf("Testing connection to server...");
+	printf("Connecting to server...");
+	fflush(stdout);
 	rpcRecv retval = network_ping(netinfo);	
+	while(retval.retval != 1){
+		printf("retrying...\n");
+		retval = network_ping(netinfo);	
+		sleep(3);
+	};
 	if (retval.retval == 1){
 		printf("Success!\n");
 	}

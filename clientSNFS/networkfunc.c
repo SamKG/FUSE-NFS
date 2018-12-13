@@ -2,7 +2,7 @@
 
 rpcRecv errRpc = {.err=1,.retval=-1,.dataLen=-1};
 int connection_setup(const networkInfo* info){
-	printf("Opening socket!\n");
+	//printf("Opening socket!\n");
 	// define variables
 	int sock;                         // socket descriptor for network socket
 	int err;                          // error status
@@ -12,7 +12,7 @@ int connection_setup(const networkInfo* info){
 	// create socket
 	sock = socket(AF_INET, SOCK_STREAM, 0);
 	if(sock < 0){
-		printf("Error creating client socket, error%d\n", errno);
+		//printf("Error creating client socket, error%d\n", errno);
 	}
 
 	// specify server address for socket
@@ -25,7 +25,7 @@ int connection_setup(const networkInfo* info){
 		// find host by name
 		hostp = gethostbyname(info->address);
 		if(hostp == (struct hostent*) NULL){
-			printf("Host not found: %d\n", h_errno);
+			//printf("Host not found: %d\n", h_errno);
 			close(sock);
 			return -1;
 		}
@@ -35,7 +35,7 @@ int connection_setup(const networkInfo* info){
 	// connect to server
 	err = connect(sock, (struct sockaddr*) &server_addr, sizeof(server_addr));
 	if(err < 0){
-		printf("Error connecting to server, error %d\n", errno);
+		//printf("Error connecting to server, error %d\n", errno);
 		close(sock);
 		return -1;
 	}

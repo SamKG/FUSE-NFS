@@ -28,7 +28,6 @@ typedef struct rpcCall{
 	off_t offset;
 	mode_t mode;
 } rpcCall;
-
 typedef struct rpcRecv{
 	int retval;
 	int err;
