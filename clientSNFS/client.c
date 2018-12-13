@@ -59,7 +59,10 @@ static int client_read(const char *path, char *buf, size_t size, off_t offset,
 {
 	path = edit_path(path);
 	rpcRecv received =  network_read(netinfo,path,buf,size,offset);
-	return 0;
+	if(received.err != 0)
+		return -received.err;
+	// retval will be the return of pread on the server side, aka number of bytes read
+	return received.retval;
 }
 
 static struct fuse_operations client_oper = {
