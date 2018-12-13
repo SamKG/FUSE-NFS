@@ -11,7 +11,7 @@
 
 using namespace std;
 
-char[256] mount_path = "";
+char mount_path[256];
 
 char* edit_path(const char* path){
     char* new_path = (char*) malloc(sizeof(char) * (strlen(path) + strlen(mount_path) + 1));
@@ -21,13 +21,18 @@ char* edit_path(const char* path){
     return new_path;
 }
 
+void server_ping(int sock){
+    rpcRecv ret;
+    ret.retval = 1;
+    send(sock, &ret, sizeof(ret), 0);
+}
 void server_open(int sock, const char* path, const int flags){
     // first edit path to indicate server side mount point
     path = edit_path(path);
 
     // execute operation and put relevant results into return struct
     rpcRecv ret;
-    ret.retval = open(s_path, flags);
+    ret.retval = open(path, flags);
     if(ret.retval == -1)
         ret.err = errno;
     else ret.err = 0;
@@ -44,6 +49,9 @@ void connection_handler(int sock){
         case OPEN:
             server_open(sock, rpcinfo.path, rpcinfo.flags);
             break;
+	case PING:
+	    server_ping(sock);
+	    break;
     }
 
     close(sock);

@@ -2,6 +2,8 @@
 #define _SNFS_h
 
 #include <sys/stat.h>
+#include <fcntl.h>
+#include <sys/types.h>
 #define PORT 16555
 
 // define enums
