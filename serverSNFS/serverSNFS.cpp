@@ -26,6 +26,7 @@ void server_ping(int sock){
 	ret.retval = 1;
 	send(sock, &ret, sizeof(ret), 0);
 }
+
 void server_open(int sock, const char* path, const int flags){
 	// first edit path to indicate server side mount point
 	path = edit_path(path);
@@ -96,11 +97,15 @@ void connection_handler(int sock){
 		case OPEN:
 			server_open(sock, rpcinfo.path, rpcinfo.flags);
 			break;
-		case PING:
-			server_ping(sock);
-			break;
 		case READ:
 			server_read(sock, rpcinfo.path, rpcinfo.size, rpcinfo.offset);
+			break;
+        case WRITE:
+            server_write(sock, rpcinfo.path, rpcinfo.size, rpcinfo.offset);
+            break;
+
+        case PING:
+			server_ping(sock);
 			break;
 	}
 
