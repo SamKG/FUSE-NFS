@@ -37,4 +37,5 @@ rpcRecv network_opendir(const networkInfo* netinfo, const char* path);
 rpcRecv network_readdir(const networkInfo* netinfo, const char* path, void* buf, off_t offset);
 rpcRecv network_releasedir(const networkInfo* netinfo, const char* path);
 rpcRecv network_mkdir(const networkInfo* netinfo, const char* path,mode_t mode);
+rpcRecv network_ping(const networkInfo* netinfo);
 
