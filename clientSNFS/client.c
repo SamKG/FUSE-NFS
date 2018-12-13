@@ -96,6 +96,11 @@ static int client_flush(const char *path, struct fuse_file_info *fi)
 	return 0;
 }
 
+static int client_release(const char *path, fuse_file_info *fi)
+{
+	return 0;
+}
+
 static struct fuse_operations client_oper = {
 	.create		= client_create,
 	.getattr	= client_getattr,
@@ -104,6 +109,7 @@ static struct fuse_operations client_oper = {
 	.read		= client_read,
 	.write		= client_write,
 	.flush 		= client_flush,
+	.release	= client_release,
 };
 
 int main(int argc, char *argv[])
