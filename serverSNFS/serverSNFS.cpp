@@ -229,7 +229,7 @@ void connection_handler(int sock){
             server_flush(sock, rpcinfo.path);
             break;
         case RELEASE:
-            server_release(sock, rpcinfo.path);
+            //server_release(sock, rpcinfo.path);
             break;
         case WRITE:
             server_write(sock, rpcinfo.path, rpcinfo.size, rpcinfo.offset);
