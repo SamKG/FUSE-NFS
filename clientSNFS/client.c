@@ -21,18 +21,8 @@ Example, if the mount path is /tmp/fuse:
 	/tmp/fuse/file1.txt will return /file1.txt
 	file2.txt will return /file2.txt	*/
 static char* edit_path(const char *path){
-	char* new_path = (char*) malloc(sizeof(char) * (strlen(path) + 2));
-	memset(new_path, 0, sizeof(char)*strlen(path));
-	
-	if(path[0] != '/'){
-		strcpy(new_path, "/");
-		strcat(new_path, path);
-	}
-	else{
-		strcpy(new_path, path + (mount_path_length) * sizeof(char));
-	}
-
-	return new_path;
+	char* newpath = (char*) ((void*)path);
+	return newpath + strlen(path); 
 }
 
 static int client_getattr(const char *path, struct stat *stbuf)
@@ -55,7 +45,7 @@ static int client_open(const char *path, struct fuse_file_info *fi)
 	path = edit_path(path);
 	rpcRecv received = network_open(netinfo,path, O_RDWR);
 	if(received.err != 0)
-		return -err;
+		return -received.err;
 	return 0; 
 }
 
