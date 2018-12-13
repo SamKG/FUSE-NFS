@@ -53,7 +53,7 @@ rpcRecv network_open(const networkInfo* netinfo,const char* path, const int flag
 	memcpy(rpcinfo.path, path, strlen(path));
 	rpcinfo.flags = flags;	
 	
-	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
+	send(sockfd, &rpcinfo, sizeof(rpcCall),0); 
 	rpcRecv received;
 	recv(sockfd, (void*) (&received), sizeof(rpcRecv), 0);
 		
@@ -119,14 +119,20 @@ rpcRecv network_read(const networkInfo* netinfo, const char* path, char* buff, s
 	rpcCall rpcinfo;
 	rpcinfo.procedure = READ;
 	rpcinfo.size = size;
+	rpcinfo.offset = offset;
 	memcpy(rpcinfo.path,path,strlen(path));
 	
 	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
 	rpcRecv received;
-	// The server should set received.dataLen to be the number of bytes read from file
+	// The server should set received.retval to be the number of bytes read from file
 	recv(sockfd, (void*) (&received), sizeof(rpcRecv), 0);
+
+	// do not receive more data on a failed read or open
+	if(received.retval < 0)
+		return received;
+
 	// Now we have to explicitly read data from server into buffer
-	recv(sockfd, (void*) buff, received.dataLen,0);	
+	recv(sockfd, (void*) buff, received.retval,0);	
 	close(sockfd);
 	return received;
 }

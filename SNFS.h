@@ -24,7 +24,8 @@ typedef struct rpcCall{
 	int procedure;
 	char path[1024];
 	int flags;
-	int size;
+	size_t size;
+	off_t offset;
 	mode_t mode;
 } rpcCall;
 
