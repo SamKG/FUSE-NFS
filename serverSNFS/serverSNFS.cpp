@@ -198,14 +198,14 @@ void server_flush(int sock, const char *path){
     }
 
     // open successful
-    res = fsync(res);
-    if(res < 0){
+    ret.retval = fsync(res);
+    if(ret.retval < 0){
         goto ERROR;
     }
-
-    // set return struct values
-    ret.retval = res;
     ret.err = 0;
+
+    // close file
+    close(res);
 
     // send return struct
     send(sock, &ret, sizeof(ret), 0);
@@ -227,6 +227,9 @@ void connection_handler(int sock){
 			break;
         case FLUSH:
             server_flush(sock, rpcinfo.path);
+            break;
+        case RELEASE:
+            server_release(sock, rpcinfo.path);
             break;
         case WRITE:
             server_write(sock, rpcinfo.path, rpcinfo.size, rpcinfo.offset);
