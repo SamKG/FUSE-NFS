@@ -50,7 +50,7 @@ rpcRecv network_open(const networkInfo* netinfo,const char* path, const int flag
 	int sockfd = connection_setup(netinfo);
 	rpcCall rpcinfo;
 	rpcinfo.procedure = OPEN;
-	memcpy(rpcinfo.path, path, strlen(path));
+	strcpy(rpcinfo.path, path, strlen(path));
 	rpcinfo.flags = flags;	
 	
 	send(sockfd, &rpcinfo, sizeof(rpcCall),0); 
@@ -65,7 +65,7 @@ rpcRecv network_getattr(const networkInfo* netinfo, const char* path){
 	int sockfd = connection_setup(netinfo);
 	rpcCall rpcinfo;
 	rpcinfo.procedure = GETATTR;
-	memcpy(rpcinfo.path,path,strlen(path));
+	strcpy(rpcinfo.path,path,strlen(path));
 	
 	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
 	rpcRecv received;
@@ -78,7 +78,7 @@ rpcRecv network_flush(const networkInfo* netinfo, const char* path){
 	int sockfd = connection_setup(netinfo);
 	rpcCall rpcinfo;
 	rpcinfo.procedure = FLUSH;
-	memcpy(rpcinfo.path,path,strlen(path));
+	strcpy(rpcinfo.path,path,strlen(path));
 	
 	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
 	rpcRecv received;
@@ -91,7 +91,7 @@ rpcRecv network_release(const networkInfo* netinfo, const char* path){
 	int sockfd = connection_setup(netinfo);
 	rpcCall rpcinfo;
 	rpcinfo.procedure = RELEASE;
-	memcpy(rpcinfo.path,path,strlen(path));
+	strcpy(rpcinfo.path,path,strlen(path));
 	
 	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
 	rpcRecv received;
@@ -105,7 +105,7 @@ rpcRecv network_truncate(const networkInfo* netinfo, const char* path, const int
 	rpcCall rpcinfo;
 	rpcinfo.procedure = TRUNCATE;
 	rpcinfo.size = size;
-	memcpy(rpcinfo.path,path,strlen(path));
+	strcpy(rpcinfo.path,path,strlen(path));
 	
 	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
 	rpcRecv received;
@@ -120,7 +120,7 @@ rpcRecv network_read(const networkInfo* netinfo, const char* path, char* buff, s
 	rpcinfo.procedure = READ;
 	rpcinfo.size = size;
 	rpcinfo.offset = offset;
-	memcpy(rpcinfo.path,path,strlen(path));
+	strcpy(rpcinfo.path, path);
 	
 	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
 	rpcRecv received;
@@ -141,7 +141,7 @@ rpcRecv network_write(const networkInfo* netinfo, const char* path, char* buff, 
 	rpcCall rpcinfo;
 	rpcinfo.procedure = WRITE;
 	rpcinfo.size = size;
-	memcpy(rpcinfo.path,path,strlen(path));
+	strcpy(rpcinfo.path,path,strlen(path));
 	
 	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
 	// Now we send string data to server
@@ -155,7 +155,7 @@ rpcRecv network_opendir(const networkInfo* netinfo, const char* path){
 	int sockfd = connection_setup(netinfo);
 	rpcCall rpcinfo;
 	rpcinfo.procedure = OPENDIR;
-	memcpy(rpcinfo.path,path,strlen(path));
+	strcpy(rpcinfo.path,path,strlen(path));
 	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
 	rpcRecv received;
 	recv(sockfd, (void*) (&received), sizeof(rpcRecv), 0);
@@ -166,7 +166,7 @@ rpcRecv network_readdir(const networkInfo* netinfo, const char* path, void* buf,
 	int sockfd = connection_setup(netinfo);
 	rpcCall rpcinfo;
 	rpcinfo.procedure = READDIR;
-	memcpy(rpcinfo.path,path,strlen(path));
+	strcpy(rpcinfo.path,path,strlen(path));
 	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
 	rpcRecv received;
 	recv(sockfd, (void*) (&received), sizeof(rpcRecv), 0);
@@ -182,7 +182,7 @@ rpcRecv network_releasedir(const networkInfo* netinfo, const char* path){
 	int sockfd = connection_setup(netinfo);
 	rpcCall rpcinfo;
 	rpcinfo.procedure = RELEASEDIR;
-	memcpy(rpcinfo.path,path,strlen(path));
+	strcpy(rpcinfo.path,path,strlen(path));
 	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
 	rpcRecv received;
 	recv(sockfd, (void*) (&received), sizeof(rpcRecv), 0);
@@ -194,7 +194,7 @@ rpcRecv network_mkdir(const networkInfo* netinfo, const char* path, mode_t mode)
 	rpcCall rpcinfo;
 	rpcinfo.procedure = RELEASEDIR;
 	rpcinfo.mode = mode;
-	memcpy(rpcinfo.path,path,strlen(path));
+	strcpy(rpcinfo.path,path,strlen(path));
 	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
 	rpcRecv received;
 	recv(sockfd, (void*) (&received), sizeof(rpcRecv), 0);
