@@ -97,7 +97,7 @@ void server_write(int sock, const char* path, size_t size, off_t offset){
     rpcRecv ret;
     int res;
     char* buf = (char*)malloc(size);
-    int fd = open(path, O_RDONLY);
+    int fd = open(path, O_WRONLY);
 
     if(fd < 0){
         // set error values, send empty data
