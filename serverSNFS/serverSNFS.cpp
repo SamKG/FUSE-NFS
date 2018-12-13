@@ -28,20 +28,20 @@ void server_ping(int sock){
 }
 
 void server_create(int sock, const char* path, mode_t mode){
-    // edit path
-    path = edit_path(path);
+	// edit path
+	path = edit_path(path);
 
-    // create file
-    rpcRecv ret;
-    ret.retval = creat(path, mode);
-    if(ret.retval < 0)
-        ret.err = errno;
-    else{
-        //close file
-        ret.err = 0;
-        close(ret.retval);
-    }
-    
+	// create file
+	rpcRecv ret;
+	ret.retval = creat(path, mode);
+	if(ret.retval < 0)
+		ret.err = errno;
+	else{
+		//close file
+		ret.err = 0;
+		close(ret.retval);
+	}
+
 	// send return struct to client
 	send(sock, &ret, sizeof(ret), 0);
 }
@@ -56,159 +56,159 @@ void server_open(int sock, const char* path, const int flags){
 	if(ret.retval < 0)
 		ret.err = errno;
 	else{
-        //close file
-        ret.err = 0;
-        close(ret.retval);
-    }
+		//close file
+		ret.err = 0;
+		close(ret.retval);
+	}
 
 	// send return struct to client
 	send(sock, &ret, sizeof(ret), 0);
 }
 
 void server_read(int sock, const char* path, size_t size, off_t offset){
-    // first edit path to indicate server side mount point
-    path = edit_path(path);
+	// first edit path to indicate server side mount point
+	path = edit_path(path);
 
-    // execute operation and put relevant results into return struct
-    rpcRecv ret;
-    int res;
-    char* buf = (char*)malloc(size);
-    int fd = open(path, O_RDONLY);
+	// execute operation and put relevant results into return struct
+	rpcRecv ret;
+	int res;
+	char* buf = (char*)malloc(size);
+	int fd = open(path, O_RDONLY);
 
-    if(fd < 0){
-        // set error values, send empty data
-        ret.retval = fd;
-        ret.err = errno;
-        goto ERROR;
-    }
-    
-    // file successfully opened
-    res = pread(fd, buf, size, offset);
-    if(res < 0){
-        ret.retval = res;
-        ret.err = errno;
-        close(fd);
-        goto ERROR;
-    }
+	if(fd < 0){
+		// set error values, send empty data
+		ret.retval = fd;
+		ret.err = errno;
+		goto ERROR;
+	}
 
-    // file successfully read
-    ret.retval = res;
-    ret.err = 0;
+	// file successfully opened
+	res = pread(fd, buf, size, offset);
+	if(res < 0){
+		ret.retval = res;
+		ret.err = errno;
+		close(fd);
+		goto ERROR;
+	}
 
-    // close file
-    close(fd);
+	// file successfully read
+	ret.retval = res;
+	ret.err = 0;
 
-    // send return struct to client
-    send(sock, &ret, sizeof(ret), 0);
-    send(sock, buf, res, 0);
-    free(buf);
-    return;
+	// close file
+	close(fd);
 
-    ERROR:
-        free(buf);
-        send(sock, &ret, sizeof(ret), 0);
+	// send return struct to client
+	send(sock, &ret, sizeof(ret), 0);
+	send(sock, buf, res, 0);
+	free(buf);
+	return;
+
+ERROR:
+	free(buf);
+	send(sock, &ret, sizeof(ret), 0);
 }
 
 void server_write(int sock, const char* path, size_t size, off_t offset){
-    // first edit path to indicate server side mount point
-    path = edit_path(path);
+	// first edit path to indicate server side mount point
+	path = edit_path(path);
 
-    // execute operation and put relevant results into return struct
-    rpcRecv ret;
-    int res;
-    char* buf = (char*)malloc(size);
-    int fd = open(path, O_WRONLY);
+	// execute operation and put relevant results into return struct
+	rpcRecv ret;
+	int res;
+	char* buf = (char*)malloc(size);
+	int fd = open(path, O_WRONLY);
 
-    if(fd < 0){
-        // set error values, send empty data
-        ret.retval = fd;
-        ret.err = errno;
-        goto ERROR;
-    }
+	if(fd < 0){
+		// set error values, send empty data
+		ret.retval = fd;
+		ret.err = errno;
+		goto ERROR;
+	}
 
-    // file opened, receive data to be written
-    recv(sock, buf, size, 0);
-    res = pwrite(fd, buf, size, offset);
-    if(res < 0){
-        ret.retval = res;
-        ret.err = errno;
-        close(fd);
-        goto ERROR;
-    }
+	// file opened, receive data to be written
+	recv(sock, buf, size, 0);
+	res = pwrite(fd, buf, size, offset);
+	if(res < 0){
+		ret.retval = res;
+		ret.err = errno;
+		close(fd);
+		goto ERROR;
+	}
 
-    // file successfully read
-    ret.retval = res;
-    ret.err = 0;
+	// file successfully read
+	ret.retval = res;
+	ret.err = 0;
 
-    // close file
-    close(fd);
+	// close file
+	close(fd);
 
-    // send return struct to client
-    send(sock, &ret, sizeof(ret), 0);
-    free(buf);
-    return;
+	// send return struct to client
+	send(sock, &ret, sizeof(ret), 0);
+	free(buf);
+	return;
 
-    ERROR:
-        free(buf);
-        send(sock, &ret, sizeof(ret), 0);
+ERROR:
+	free(buf);
+	send(sock, &ret, sizeof(ret), 0);
 }
 
 void server_getattr(int sock, const char *path){
-    // first edit path for mount address
-    path = edit_path(path);
+	// first edit path for mount address
+	path = edit_path(path);
 
-    // define variables
-    struct stat st;
-    rpcRecv ret;
-    int res = lstat(path, &st);
+	// define variables
+	struct stat st;
+	rpcRecv ret;
+	int res = lstat(path, &st);
 
-    if(res < 0){
-        ret.retval = res;
-        ret.err = errno;
-        send(sock, &ret, sizeof(ret), 0);
-        return;
-    }
+	if(res < 0){
+		ret.retval = res;
+		ret.err = errno;
+		send(sock, &ret, sizeof(ret), 0);
+		return;
+	}
 
-    // lstat successful
-    ret.retval = res;
-    ret.err = 0;
+	// lstat successful
+	ret.retval = res;
+	ret.err = 0;
 
-    // send return value
-    send(sock, &ret, sizeof(ret), 0);
+	// send return value
+	send(sock, &ret, sizeof(ret), 0);
 
-    // send stat struct
-    send(sock, &st, sizeof(st), 0);
+	// send stat struct
+	send(sock, &st, sizeof(st), 0);
 }
 
 void server_flush(int sock, const char *path){
-    // edit path
-    path = edit_path(path);
+	// edit path
+	path = edit_path(path);
 
-    // open file first
-    rpcRecv ret;
-    int res = open(path, O_RDWR);
+	// open file first
+	rpcRecv ret;
+	int res = open(path, O_RDWR);
 
-    // error check
-    if(res < 0){
-        ERROR:
-            ret.retval = res;
-            ret.err = errno;
-            send(sock, &ret, sizeof(ret), 0);
-            return;
-    }
+	// error check
+	if(res < 0){
+ERROR:
+		ret.retval = res;
+		ret.err = errno;
+		send(sock, &ret, sizeof(ret), 0);
+		return;
+	}
 
-    // open successful
-    ret.retval = fsync(res);
-    if(ret.retval < 0){
-        goto ERROR;
-    }
-    ret.err = 0;
+	// open successful
+	ret.retval = fsync(res);
+	if(ret.retval < 0){
+		goto ERROR;
+	}
+	ret.err = 0;
 
-    // close file
-    close(res);
+	// close file
+	close(res);
 
-    // send return struct
-    send(sock, &ret, sizeof(ret), 0);
+	// send return struct
+	send(sock, &ret, sizeof(ret), 0);
 }
 
 void connection_handler(int sock){
@@ -216,29 +216,29 @@ void connection_handler(int sock){
 	recv(sock, &rpcinfo, sizeof(rpcinfo), 0);
 	printf("Received Procedure call request! (Procedure %d)\n",rpcinfo.procedure);
 	switch(rpcinfo.procedure){
-        case CREATE:
-            server_create(sock, rpcinfo.path, rpcinfo.mode);
-            break;
+		case CREATE:
+			server_create(sock, rpcinfo.path, rpcinfo.mode);
+			break;
 		case OPEN:
 			server_open(sock, rpcinfo.path, rpcinfo.flags);
 			break;
 		case READ:
 			server_read(sock, rpcinfo.path, rpcinfo.size, rpcinfo.offset);
 			break;
-        case FLUSH:
-            server_flush(sock, rpcinfo.path);
-            break;
-        case RELEASE:
-            //server_release(sock, rpcinfo.path);
-            break;
-        case WRITE:
-            server_write(sock, rpcinfo.path, rpcinfo.size, rpcinfo.offset);
-            break;
-        case GETATTR:
-            server_getattr(sock, rpcinfo.path);
-            break;
+		case FLUSH:
+			server_flush(sock, rpcinfo.path);
+			break;
+		case RELEASE:
+			//server_release(sock, rpcinfo.path);
+			break;
+		case WRITE:
+			server_write(sock, rpcinfo.path, rpcinfo.size, rpcinfo.offset);
+			break;
+		case GETATTR:
+			server_getattr(sock, rpcinfo.path);
+			break;
 
-        case PING:
+		case PING:
 			server_ping(sock);
 			break;
 	}
