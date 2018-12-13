@@ -60,8 +60,8 @@ rpcRecv network_open(const networkInfo* netinfo,const char* path, const int flag
 	close(sockfd);
 	return received;
 }
-// TODO: Manually fill in stat structure with received data!
-rpcRecv network_getattr(const networkInfo* netinfo, const char* path){
+
+rpcRecv network_getattr(const networkInfo* netinfo, const char* path, struct stat *stbuf){
 	int sockfd = connection_setup(netinfo);
 	rpcCall rpcinfo;
 	rpcinfo.procedure = GETATTR;
@@ -69,7 +69,15 @@ rpcRecv network_getattr(const networkInfo* netinfo, const char* path){
 	
 	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
 	rpcRecv received;
+
+	// first receive return value, then received stat struct directly
 	recv(sockfd, (void*) (&received), sizeof(rpcRecv), 0);
+
+	// do not receive stat on error
+	if(received.retval < 0)
+		return received;
+
+	recv(sockfd, stbuf, sizeof(struct stat), 0);
 		
 	close(sockfd);
 	return received;
@@ -124,6 +132,7 @@ rpcRecv network_read(const networkInfo* netinfo, const char* path, char* buff, s
 	
 	send(sockfd, &rpcinfo, sizeof(rpcCall), 0); 
 	rpcRecv received;
+
 	// The server should set received.retval to be the number of bytes read from file
 	recv(sockfd, (void*) (&received), sizeof(rpcRecv), 0);
 

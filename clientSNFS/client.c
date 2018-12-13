@@ -28,7 +28,10 @@ static char* edit_path(const char *path){
 static int client_getattr(const char *path, struct stat *stbuf)
 {
 	path = edit_path(path);
-	rpcRecv received = network_getattr(netinfo,path);
+	rpcRecv received = network_getattr(netinfo, path, stbuf);
+	if(received.retval < 0){
+		return -recieved.err;
+	}
 	return 0;
 }
 
@@ -49,7 +52,7 @@ static int client_open(const char *path, struct fuse_file_info *fi)
 {
 	path = edit_path(path);
 	rpcRecv received = network_open(netinfo,path, O_RDWR);
-	if(received.err != 0)
+	if(received.retval < 0)
 		return -received.err;
 	return 0; 
 }
@@ -59,7 +62,7 @@ static int client_read(const char *path, char *buf, size_t size, off_t offset,
 {
 	path = edit_path(path);
 	rpcRecv received = network_read(netinfo,path,buf,size,offset);
-	if(received.err != 0)
+	if(received.retval < 0)
 		return -received.err;
 	// retval will be the return of pread on the server side, aka number of bytes read
 	return received.retval;
@@ -70,7 +73,7 @@ static int client_write(const char *path, const char *buf, size_t size, off_t of
 {
 	path = edit_path(path);
 	rpcRecv received = network_write(netinfo, path, buf, size, offset);
-	if(received.err != 0)
+	if(received.retval < 0)
 		return -received.err;
 	return received.retval;
 }
@@ -80,6 +83,7 @@ static struct fuse_operations client_oper = {
 	.readdir	= client_readdir,
 	.open		= client_open,
 	.read		= client_read,
+	.write		= client_write,
 };
 
 int main(int argc, char *argv[])

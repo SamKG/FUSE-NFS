@@ -133,6 +133,33 @@ void server_write(int sock, const char* path, size_t size, off_t offset){
         send(sock, &ret, sizeof(ret), 0);
 }
 
+void server_getattr(int sock, const char *path){
+    // first edit path for mount address
+    path = edit_path(path);
+
+    // define variables
+    struct stat st;
+    rpcRecv ret;
+    int res = lstat(path, &st);
+
+    if(res < 0){
+        ret.retval = res;
+        ret.err = errno;
+        send(sock, &ret, sizeof(ret), 0);
+        return;
+    }
+
+    // lstat successful
+    ret.retval = res;
+    ret.err = 0;
+
+    // send return value
+    send(sock, &ret, sizeof(ret), 0);
+
+    // send stat struct
+    send(sock, &st, sizeof(st), 0);
+}
+
 void connection_handler(int sock){
 	rpcCall rpcinfo;
 	recv(sock, &rpcinfo, sizeof(rpcinfo), 0);
@@ -146,6 +173,9 @@ void connection_handler(int sock){
 			break;
         case WRITE:
             server_write(sock, rpcinfo.path, rpcinfo.size, rpcinfo.offset);
+            break;
+        case GETATTR:
+            server_getattr(sock, rpcinfo.path);
             break;
 
         case PING:
