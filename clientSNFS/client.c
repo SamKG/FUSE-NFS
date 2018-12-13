@@ -96,7 +96,7 @@ static int client_flush(const char *path, struct fuse_file_info *fi)
 	return 0;
 }
 
-static int client_release(const char *path, fuse_file_info *fi)
+static int client_release(const char *path, struct fuse_file_info *fi)
 {
 	return 0;
 }
