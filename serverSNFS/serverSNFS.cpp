@@ -27,6 +27,25 @@ void server_ping(int sock){
 	send(sock, &ret, sizeof(ret), 0);
 }
 
+void server_create(int sock, const char* path, mode_t mode){
+    // edit path
+    path = edit_path(path);
+
+    // create file
+    rpcRecv ret;
+    ret.retval = creat(path, mode);
+    if(ret.retval < 0)
+        ret.err = errno;
+    else{
+        //close file
+        ret.err = 0;
+        close(ret.retval);
+    }
+    
+	// send return struct to client
+	send(sock, &ret, sizeof(ret), 0);
+}
+
 void server_open(int sock, const char* path, const int flags){
 	// first edit path to indicate server side mount point
 	path = edit_path(path);
@@ -34,12 +53,13 @@ void server_open(int sock, const char* path, const int flags){
 	// execute operation and put relevant results into return struct
 	rpcRecv ret;
 	ret.retval = open(path, flags);
-	if(ret.retval == -1)
+	if(ret.retval < 0)
 		ret.err = errno;
-	else ret.err = 0;
-
-	// close file
-	close(ret.retval);
+	else{
+        //close file
+        ret.err = 0;
+        close(ret.retval);
+    }
 
 	// send return struct to client
 	send(sock, &ret, sizeof(ret), 0);
@@ -165,6 +185,9 @@ void connection_handler(int sock){
 	recv(sock, &rpcinfo, sizeof(rpcinfo), 0);
 	printf("Received Procedure call request! (Procedure %d)\n",rpcinfo.procedure);
 	switch(rpcinfo.procedure){
+        case CREATE:
+            server_create(sock, rpcinfo.path, rpcinfo.mode);
+            break;
 		case OPEN:
 			server_open(sock, rpcinfo.path, rpcinfo.flags);
 			break;

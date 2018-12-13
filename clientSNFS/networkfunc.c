@@ -46,6 +46,22 @@ int connection_close(int sockfd){
 	close(sockfd);	
 	return 0;
 }
+
+rpcRecv network_create(const networkInfo* netinfo, const char *path, mode_t mode){
+	int sockfd = connection_setup(netinfo);
+	rpcCall rpcinfo;
+	rpcinfo.procedure = OPEN;
+	rpcinfo.mode = mode;
+	strcpy(rpcinfo.path, path);
+
+	send(sockfd, &rpcinfo, sizeof(rpcCall),0); 
+	rpcRecv received;
+	recv(sockfd, (void*) (&received), sizeof(rpcRecv), 0);
+		
+	close(sockfd);
+	return received;
+}
+
 rpcRecv network_open(const networkInfo* netinfo,const char* path, const int flags){
 	int sockfd = connection_setup(netinfo);
 	rpcCall rpcinfo;

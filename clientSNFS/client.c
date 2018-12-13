@@ -25,7 +25,16 @@ static char* edit_path(const char *path){
 	return newpath + mount_path_length; 
 }
 
-static int client_getattr(const char *path, struct stat *stbuf)
+static int client_create(const char *path, mode_t mode, struct fuse_file_info *fi)
+{
+	path = edit_path(path);
+	rpcRecv received = network_create(netinfo, path, mode);
+	if(received.retval < 0)
+		return -received.err;
+	return 0; 
+}
+
+static int client_getattr(const char *path, struct stat *stbuf, struct fuse_file_info *fi)
 {
 	path = edit_path(path);
 	rpcRecv received = network_getattr(netinfo, path, stbuf);
