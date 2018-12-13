@@ -180,6 +180,41 @@ void server_getattr(int sock, const char *path){
 	send(sock, &st, sizeof(st), 0);
 }
 
+void server_readdir(int sock, const char *path){
+	// first edit path for mount address
+	path = edit_path(path);
+
+	// define variables
+	struct stat st;
+	rpcRecv ret;
+	
+	DIR* dir = opendir(path);
+	if (dir == NULL){
+		ret.retval = -1;
+		ret.err = -1;
+		send(sock, &ret, sizeof(ret), 0);
+		return;
+	}
+	ret.retval = 1;
+	ret.err = 0;
+	
+	// send return value
+	struct dirent* dirp = readdir(dir);
+	struct dirent* directories = (struct dirent*) malloc(sizeof(struct dirent)*1024);
+	int count = 0;
+	while(dirp != NULL){
+		memcpy((void*)&(directories[count++]),dirp,sizeof(struct dirent));
+		dirp = readdir(dir);
+	}
+	ret.dataLen = count;
+	send(sock, &ret, sizeof(ret), 0);
+	for (int i = 0 ; i < count ; i++){
+		send(sock, &(directories[i]),sizeof(struct dirent),0);
+	}
+	
+	return;	
+
+}
 void server_flush(int sock, const char *path){
 	// edit path
 	path = edit_path(path);
@@ -237,7 +272,9 @@ void connection_handler(int sock){
 		case GETATTR:
 			server_getattr(sock, rpcinfo.path);
 			break;
-
+		case READDIR:
+			server_readdir(sock,rpcinfo.path);
+			break;
 		case PING:
 			server_ping(sock);
 			break;

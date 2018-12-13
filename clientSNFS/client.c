@@ -156,5 +156,6 @@ int main(int argc, char *argv[])
 		return 0;
 	}
 	// Run fuse_main with the other parameters
+	printf("Setting up fuse!\n");
 	return fuse_main(argcpassed, argvpassed, &client_oper, NULL);
 }

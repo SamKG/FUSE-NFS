@@ -4,6 +4,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <sys/types.h>
+#include <dirent.h>
 #define PORT 16555
 
 // define enums
