@@ -11,20 +11,40 @@
 
 using namespace std;
 
+char[256] mount_path = "";
+
+char* edit_path(const char* path){
+    char* new_path = (char*) malloc(sizeof(char) * (strlen(path) + strlen(mount_path) + 1));
+    strcat(new_path, mount_path);
+    strcat(new_path, path);
+
+    return new_path;
+}
+
+void server_open(int sock, const char* path, const int flags){
+    // first edit path to indicate server side mount point
+    path = edit_path(path);
+
+    // execute operation and put relevant results into return struct
+    rpcRecv ret;
+    ret.retval = open(s_path, flags);
+    if(ret.retval == -1)
+        ret.err = errno;
+    else ret.err = 0;
+
+    // send return struct to client
+    send(sock, &ret, sizeof(ret), 0);
+}
+
 void connection_handler(int sock){
-    char message[256];
-    int m;
-    recv(sock, &message, sizeof(message), 0);
+    rpcCall rpcinfo;
+    recv(sock, &rpcinfo, sizeof(rpcinfo), 0);
 
-    printf("Server received message: %s\n", message);
-
-    m = stoi(message);
-    if(m < 0){
-        return;
+    switch(rpcinfo.procedure){
+        case OPEN:
+            server_open(sock, rpcinfo.path, rpcinfo.flags);
+            break;
     }
-    sprintf(message, "%d", m + 1);
-
-    send(sock, &message, sizeof(message), 0);
 
     close(sock);
 }
@@ -41,6 +61,21 @@ int main(int argc, char** argv){
     fd_set accept_fd;                       // for use in select
     struct timeval timeout;                 // allows setting a timeout period
 
+    // parse port and mount directory
+    char* portString;
+	char* mountString;
+	for (int i = 0 ; i < argc ; i++){
+		char* curr = argv[i];
+		if (strcmp(curr,"-port") == 0){
+			portString = argv[i++];
+		}
+		else if(strcmp(curr,"-mount") == 0){
+			mountString = argv[i++];	
+		}
+	}
+    int port = atoi(portString);
+    memcpy(mount_path, mountString, strlen(mountString) + 1);
+
     // create server socket
     s_sock = socket(AF_INET, SOCK_STREAM, 0);
     if(s_sock < 0){
@@ -49,7 +84,7 @@ int main(int argc, char** argv){
 
     // set server address
     server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(PORT);
+    server_addr.sin_port = htons(port);
     server_addr.sin_addr.s_addr = INADDR_ANY;
 
     // bind server socket to address and port

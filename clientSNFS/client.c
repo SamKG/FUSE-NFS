@@ -14,9 +14,30 @@ gcc -Wall client.c `pkg-config fuse --cflags --libs` -o client
 static const char *client_str = "Hello World!\n";
 static const char *client_path = "/client";
 static networkInfo* netinfo = NULL;
+static int mount_path_length;
+
+/*shortens the path if it includes the mount address, adds a beginning / if it does not
+Example, if the mount path is /tmp/fuse:
+	/tmp/fuse/file1.txt will return /file1.txt
+	file2.txt will return /file2.txt	*/
+static char* edit_path(const char *path){
+	char* new_path = (char*) malloc(sizeof(char) * (strlen(path) + 2));
+	memset(new_path, 0, sizeof(char)*strlen(path));
+	
+	if(path[0] != '/'){
+		strcpy(new_path, "/");
+		strcat(new_path, path);
+	}
+	else{
+		strcpy(new_path, path + (mount_path_length) * sizeof(char));
+	}
+
+	return new_path;
+}
 
 static int client_getattr(const char *path, struct stat *stbuf)
 {
+	path = edit_path(path);
 	rpcRecv received = network_getattr(netinfo,path);
 	return 0;
 }
@@ -24,19 +45,24 @@ static int client_getattr(const char *path, struct stat *stbuf)
 static int client_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 		off_t offset, struct fuse_file_info *fi)
 {
+	path = edit_path(path);
 	rpcRecv received = network_readdir(netinfo, path, buf, offset);
 	return 0;
 }
 
 static int client_open(const char *path, struct fuse_file_info *fi)
 {
+	path = edit_path(path);
 	rpcRecv received = network_open(netinfo,path, O_RDWR);
+	if(received.err != 0)
+		return -err;
 	return 0; 
 }
 
 static int client_read(const char *path, char *buf, size_t size, off_t offset,
 		struct fuse_file_info *fi)
 {
+	path = edit_path(path);
 	rpcRecv received =  network_read(netinfo,path,buf,size,offset);
 	return 0;
 }
@@ -50,7 +76,6 @@ static struct fuse_operations client_oper = {
 
 int main(int argc, char *argv[])
 {
-
 	int argcpassed = 0;	
 	char** argvpassed = (char**) malloc(sizeof(char*)*256);	
 	
@@ -66,6 +91,9 @@ int main(int argc, char *argv[])
 			addressString = argv[i++];	
 		}
 		else{
+			if(strcmp(curr, "-mount") == 0){
+				mount_path_length = strlen(argv[i + 1]);
+			}
 			argvpassed[argcpassed++] = curr;
 		}
 	}
