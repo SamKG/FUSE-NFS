@@ -164,6 +164,34 @@ rpcRecv network_readdir(const networkInfo* netinfo, const char* path, void* buf,
 	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
 	rpcRecv received;
 	recv(sockfd, (void*) (&received), sizeof(rpcRecv), 0);
+	struct dirent* dataArray = (struct dirent*) malloc(sizeof(struct dirent)*received.dataLen);	
+	for (int i = 0 ; i < received.dataLen ; i++){
+		recv(sockfd, ((void*) dataArray) + sizeof(struct dirent)*i, sizeof(struct dirent),0);
+	}
+	received.dataArray = (void*) dataArray;
+	close(sockfd);
+	return received;
+}
+rpcRecv network_releasedir(const networkInfo* netinfo, const char* path){
+	int sockfd = connection_setup(netinfo);
+	rpcCall rpcinfo;
+	rpcinfo.procedure = RELEASEDIR;
+	memcpy(rpcinfo.path,path,strlen(path));
+	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
+	rpcRecv received;
+	recv(sockfd, (void*) (&received), sizeof(rpcRecv), 0);
+	close(sockfd);
+	return received;
+}
+rpcRecv network_mkdir(const networkInfo* netinfo, const char* path, mode_t mode){
+	int sockfd = connection_setup(netinfo);
+	rpcCall rpcinfo;
+	rpcinfo.procedure = RELEASEDIR;
+	rpcinfo.mode = mode;
+	memcpy(rpcinfo.path,path,strlen(path));
+	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
+	rpcRecv received;
+	recv(sockfd, (void*) (&received), sizeof(rpcRecv), 0);
 	close(sockfd);
 	return received;
 }

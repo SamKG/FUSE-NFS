@@ -15,6 +15,7 @@
 #include <netdb.h>
 #include <unistd.h>
 #include <errno.h>
+#include <dirent.h>
 #include "SNFS.h"
 // The job of the networkInfo struct is to store relevant data about the server (ie: address and port)
 typedef struct networkInfo {
@@ -34,3 +35,6 @@ rpcRecv network_read(const networkInfo* netinfo, const char* path, char* buff, s
 rpcRecv network_write(const networkInfo* netinfo, const char* path, char* buff, size_t size, off_t offset);
 rpcRecv network_opendir(const networkInfo* netinfo, const char* path);
 rpcRecv network_readdir(const networkInfo* netinfo, const char* path, void* buf, off_t offset);
+rpcRecv network_releasedir(const networkInfo* netinfo, const char* path);
+rpcRecv network_mkdir(const networkInfo* netinfo, const char* path,mode_t mode);
+

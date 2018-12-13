@@ -1,6 +1,7 @@
 #ifndef _SNFS_h
 #define _SNFS_h
 
+#include <sys/stat.h>
 #define PORT 16555
 
 // define enums
@@ -22,11 +23,14 @@ typedef struct rpcCall{
 	char path[1024];
 	int flags;
 	int size;
+	mode_t mode;
 } rpcCall;
 
 typedef struct rpcRecv{
 	int retval;
 	int err;
 	int dataLen;
+	int dataSize;
+	void* dataArray;
 } rpcRecv;
 #endif

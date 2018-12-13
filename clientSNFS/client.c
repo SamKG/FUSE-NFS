@@ -22,7 +22,7 @@ Example, if the mount path is /tmp/fuse:
 	file2.txt will return /file2.txt	*/
 static char* edit_path(const char *path){
 	char* newpath = (char*) ((void*)path);
-	return newpath + strlen(path); 
+	return newpath + mount_path_length; 
 }
 
 static int client_getattr(const char *path, struct stat *stbuf)
@@ -37,6 +37,11 @@ static int client_readdir(const char *path, void *buf, fuse_fill_dir_t filler,
 {
 	path = edit_path(path);
 	rpcRecv received = network_readdir(netinfo, path, buf, offset);
+	for (int i = 0 ; i < received.dataLen ; i++){
+		if (filler(buf,((struct dirent*) received.dataArray)[i].d_name,NULL,0) != 0){
+			return -ENOMEM;
+		}
+	}
 	return 0;
 }
 
@@ -75,10 +80,10 @@ int main(int argc, char *argv[])
 	for (int i = 0 ; i < argc ; i++){
 		char* curr = argv[i];
 		if (strcmp(curr,"-port") == 0){
-			portString = argv[i++];
+			portString = argv[++i];
 		}
 		else if(strcmp(curr,"-address") == 0){
-			addressString = argv[i++];	
+			addressString = argv[++i];	
 		}
 		else{
 			if(strcmp(curr, "-mount") == 0){
@@ -87,7 +92,7 @@ int main(int argc, char *argv[])
 			argvpassed[argcpassed++] = curr;
 		}
 	}
-	
+	printf("Starting fuse with %s:%s\n",addressString,portString);	
 	netinfo = (networkInfo*) malloc(sizeof(networkInfo));	
 	netinfo->port = atoi(portString);
 	netinfo->address = (char*) malloc(sizeof(char)*strlen(addressString)+1);
