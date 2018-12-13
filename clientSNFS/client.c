@@ -88,12 +88,12 @@ static int client_write(const char *path, const char *buf, size_t size, off_t of
 }
 
 static struct fuse_operations client_oper = {
+	.create		= client_create,
 	.getattr	= client_getattr,
 	.readdir	= client_readdir,
 	.open		= client_open,
 	.read		= client_read,
 	.write		= client_write,
-	.create		= client_create,
 };
 
 int main(int argc, char *argv[])
