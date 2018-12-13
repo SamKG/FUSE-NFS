@@ -192,9 +192,19 @@ rpcRecv network_releasedir(const networkInfo* netinfo, const char* path){
 rpcRecv network_mkdir(const networkInfo* netinfo, const char* path, mode_t mode){
 	int sockfd = connection_setup(netinfo);
 	rpcCall rpcinfo;
-	rpcinfo.procedure = RELEASEDIR;
+	rpcinfo.procedure = MKDIR;
 	rpcinfo.mode = mode;
 	strcpy(rpcinfo.path,path,strlen(path));
+	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
+	rpcRecv received;
+	recv(sockfd, (void*) (&received), sizeof(rpcRecv), 0);
+	close(sockfd);
+	return received;
+}
+rpcRecv network_ping(const networkInfo* netinfo){
+	int sockfd = connection_setup(netinfo);
+	rpcCall rpcinfo;
+	rpcinfo.procedure = PING;
 	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
 	rpcRecv received;
 	recv(sockfd, (void*) (&received), sizeof(rpcRecv), 0);

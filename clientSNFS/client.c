@@ -100,6 +100,9 @@ int main(int argc, char *argv[])
 	netinfo->port = atoi(portString);
 	netinfo->address = (char*) malloc(sizeof(char)*strlen(addressString)+1);
 	memcpy(netinfo->address,addressString,strlen(addressString)+1);
+	printf("Testing connection to server\n");
+	rpcRecv retval = network_ping(netinfo);	
+	printf("Received from server : %d\n",retval.retval);
 	// Run fuse_main with the other parameters
 	return fuse_main(argcpassed, argvpassed, &client_oper, NULL);
 }
