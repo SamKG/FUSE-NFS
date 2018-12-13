@@ -30,7 +30,7 @@ static int client_getattr(const char *path, struct stat *stbuf)
 	path = edit_path(path);
 	rpcRecv received = network_getattr(netinfo, path, stbuf);
 	if(received.retval < 0){
-		return -recieved.err;
+		return -received.err;
 	}
 	return 0;
 }
