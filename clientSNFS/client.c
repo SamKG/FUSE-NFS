@@ -34,7 +34,7 @@ static int client_create(const char *path, mode_t mode, struct fuse_file_info *f
 	return 0; 
 }
 
-static int client_getattr(const char *path, struct stat *stbuf, struct fuse_file_info *fi)
+static int client_getattr(const char *path, struct stat *stbuf)
 {
 	path = edit_path(path);
 	rpcRecv received = network_getattr(netinfo, path, stbuf);
