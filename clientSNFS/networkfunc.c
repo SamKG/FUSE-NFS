@@ -129,23 +129,7 @@ rpcRecv network_flush(const networkInfo* netinfo, const char* path, int fd){
 	close(sockfd);
 	return received;
 }
-rpcRecv network_release(const networkInfo* netinfo, const char* path){
-	int sockfd = connection_setup(netinfo);
-	if(sockfd == -1){
-		return errRpc;
-	}
 
-	rpcCall rpcinfo;
-	rpcinfo.procedure = RELEASE;
-	strcpy(rpcinfo.path,path);
-
-	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
-	rpcRecv received;
-	recv(sockfd, (void*) (&received), sizeof(rpcRecv), 0);
-
-	close(sockfd);
-	return received;
-}
 rpcRecv network_truncate(const networkInfo* netinfo, const char* path, off_t size, int fd){
 	int sockfd = connection_setup(netinfo);
 	if(sockfd == -1){
@@ -165,6 +149,26 @@ rpcRecv network_truncate(const networkInfo* netinfo, const char* path, off_t siz
 	close(sockfd);
 	return received;
 }
+
+rpcRecv network_release(const networkInfo *netinfo, const char* path, int fd){
+	int sockfd = connection_setup(netinfo);
+	if(sockfd == -1){
+		return errRpc;
+	}
+
+	rpcCall rpcinfo;
+	rpcinfo.procedure = RELEASE;
+	rpcinfo.fd = fd;
+	strcpy(rpcinfo.path, path);
+
+	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
+	rpcRecv received;
+	recv(sockfd, (void*) (&received), sizeof(rpcRecv), 0);
+
+	close(sockfd);
+	return received;
+}
+
 rpcRecv network_read(const networkInfo* netinfo, const char* path, char* buff, size_t size, off_t offset, int fd){
 	int sockfd = connection_setup(netinfo);
 	if(sockfd == -1){

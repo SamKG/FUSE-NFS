@@ -117,6 +117,15 @@ static int client_flush(const char *path, struct fuse_file_info *fi)
 
 static int client_release(const char *path, struct fuse_file_info *fi)
 {
+	path = edit_path(path);
+	rpcRecv received;
+
+	if(fi == NULL)
+		return 0;
+	received = network_release(netinfo, path, fi->fh);
+
+	if(received.retval < 0)
+		return -received.err;
 	return 0;
 }
 
@@ -156,6 +165,7 @@ static struct fuse_operations client_oper = {
 	.flush 		= client_flush,
 	.release	= client_release,
 	.mkdir		= client_mkdir,
+	.truncate	= client_truncate,
 };
 
 int main(int argc, char *argv[])

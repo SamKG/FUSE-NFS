@@ -301,6 +301,19 @@ void server_truncate(int sock, const char *path, off_t size, int rpc_fd){
 	send(sock, &ret, sizeof(ret), 0);
 }
 
+void server_release(int sock, const char *path, int rpc_fd){
+	rpcRecv ret;
+	ret.retval = close(fd);
+
+	if(ret.retval == -1){
+		ret.err = errno;
+	}
+	else{
+		ret.err = 0;
+	}
+	send(sock, &ret, sizeof(ret), 0);
+}
+
 void connection_handler(int sock){
 	rpcCall rpcinfo;
 	recv(sock, &rpcinfo, sizeof(rpcinfo), 0);
@@ -319,7 +332,7 @@ void connection_handler(int sock){
 			server_flush(sock, rpcinfo.path, rpcinfo.fd);
 			break;
 		case RELEASE:
-			//server_release(sock, rpcinfo.path);
+			server_release(sock, rpcinfo.path, rpcinfo.fd);
 			break;
 		case WRITE:
 			server_write(sock, rpcinfo.path, rpcinfo.size, rpcinfo.offset, rpcinfo.fd);
