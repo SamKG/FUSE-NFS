@@ -40,6 +40,7 @@ rpcRecv network_releasedir(const networkInfo* netinfo, const char* path);
 rpcRecv network_mkdir(const networkInfo* netinfo, const char* path,mode_t mode);
 rpcRecv network_access(const networkInfo* netinfo, const char* path,int mode);
 rpcRecv network_unlink(const networkInfo* netinfo, const char* path);
+rpcRecv network_rmdir(const networkInfo* netinfo, const char* path);
 rpcRecv network_fsync(const networkInfo* netinfo, const char* path,int mode);
 rpcRecv network_ping(const networkInfo* netinfo);
 

@@ -179,6 +179,15 @@ static int client_unlink(const char *path)
 	
 	return received.retval;
 }
+static int client_rmdir(const char *path)
+{
+	path = edit_path(path);
+	rpcRecv received = network_rmdir(netinfo, path);
+	if(received.retval < 0)
+		return -received.err;
+	
+	return received.retval;
+}
 static int client_fsync(const char *path, int mode, struct fuse_file_info * fi)
 {
 	path = edit_path(path);
@@ -215,7 +224,7 @@ static struct fuse_operations client_oper = {
 	.access		= client_access,
 	.fsync		= client_fsync,
 	.unlink		= client_unlink,
-		
+	.rmdir		= client_rmdir,		
 };
 
 int main(int argc, char *argv[])

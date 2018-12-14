@@ -285,6 +285,21 @@ rpcRecv network_mkdir(const networkInfo* netinfo, const char* path, mode_t mode)
 	close(sockfd);
 	return received;
 }
+rpcRecv network_rmdir(const networkInfo* netinfo, const char* path){
+	int sockfd = connection_setup(netinfo);
+	if(sockfd == -1){
+		return errRpc;
+	}
+
+	rpcCall rpcinfo;
+	rpcinfo.procedure = RMDIR;
+	strcpy(rpcinfo.path,path);
+	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
+	rpcRecv received;
+	recv(sockfd, (void*) (&received), sizeof(rpcRecv), 0);
+	close(sockfd);
+	return received;
+}
 rpcRecv network_unlink(const networkInfo* netinfo, const char* path){
 	int sockfd = connection_setup(netinfo);
 	if(sockfd == -1){
