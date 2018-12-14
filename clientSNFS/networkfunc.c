@@ -285,6 +285,38 @@ rpcRecv network_mkdir(const networkInfo* netinfo, const char* path, mode_t mode)
 	close(sockfd);
 	return received;
 }
+rpcRecv network_access(const networkInfo* netinfo, const char* path, int mode){
+	int sockfd = connection_setup(netinfo);
+	if(sockfd == -1){
+		return errRpc;
+	}
+
+	rpcCall rpcinfo;
+	rpcinfo.procedure = ACCESS;
+	rpcinfo.flags = mode;
+	strcpy(rpcinfo.path,path);
+	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
+	rpcRecv received;
+	recv(sockfd, (void*) (&received), sizeof(rpcRecv), 0);
+	close(sockfd);
+	return received;
+}
+rpcRecv network_fsync(const networkInfo* netinfo, const char* path, int mode){
+	int sockfd = connection_setup(netinfo);
+	if(sockfd == -1){
+		return errRpc;
+	}
+
+	rpcCall rpcinfo;
+	rpcinfo.procedure = FSYNC;
+	rpcinfo.flags = mode;
+	strcpy(rpcinfo.path,path);
+	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
+	rpcRecv received;
+	recv(sockfd, (void*) (&received), sizeof(rpcRecv), 0);
+	close(sockfd);
+	return received;
+}
 rpcRecv network_ping(const networkInfo* netinfo){
 	int sockfd = connection_setup(netinfo);
 	if(sockfd == -1){

@@ -154,7 +154,6 @@ static int client_releasedir(const char *path, struct fuse_file_info *fi)
 static int client_mkdir(const char *path, mode_t mode)
 {
 	path = edit_path(path);
-	printf("Making directory at %s\n",path);
 	rpcRecv received = network_mkdir(netinfo, path,mode);
 	if(received.retval < 0)
 		return -received.err;
@@ -162,6 +161,24 @@ static int client_mkdir(const char *path, mode_t mode)
 	return 0;
 }
 
+static int client_access(const char *path, int mode)
+{
+	path = edit_path(path);
+	rpcRecv received = network_access(netinfo, path,mode);
+	if(received.retval < 0)
+		return -received.err;
+	
+	return received.retval;
+}
+static int client_fsync(const char *path, int mode, struct fuse_file_info * fi)
+{
+	path = edit_path(path);
+	rpcRecv received = network_fsync(netinfo, path,mode);
+	if(received.retval < 0)
+		return -received.err;
+	
+	return received.retval;
+}
 static int client_truncate(const char *path, off_t size)
 {
 	path = edit_path(path);
@@ -186,6 +203,9 @@ static struct fuse_operations client_oper = {
 	.readdir	= client_readdir,
 	.releasedir = client_releasedir,
 	.mkdir		= client_mkdir,
+	.access		= client_access,
+	.fsync		= client_fsync,
+		
 };
 
 int main(int argc, char *argv[])

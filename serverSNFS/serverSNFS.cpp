@@ -282,6 +282,47 @@ void server_mkdir(int sock, const char *path,mode_t mode){
 	return;	
 
 }
+void server_fsync(int sock, const char *path,int mode){
+	// first edit path for mount address
+	path = edit_path(path);
+	printf("fsync at %s\n",path);
+	struct stat st;
+	rpcRecv ret;
+	int fd = ht_lookup(&fd_ht,path);
+
+	if(fd < 0){
+		// set error values, send empty data
+		ret.retval = fd;
+		ret.err = EBADF;
+		send(sock, &ret, sizeof(ret), 0);
+		return;
+	}
+	if (mode){
+		ret.retval = fdatasync(fd);
+	}	
+	else {
+		ret.retval = fsync(fd);
+	}
+	ret.err = 0;
+	send(sock, &ret, sizeof(ret), 0);
+	return;	
+}
+void server_access(int sock, const char *path,int mode){
+	// first edit path for mount address
+	path = edit_path(path);
+	printf("access check at %s\n",path);
+	struct stat st;
+	rpcRecv ret;
+
+	ret.retval = access(path,mode);
+	ret.err = 0;
+	if (ret.retval < 0){
+		ret.err = errno;
+	}
+	send(sock, &ret, sizeof(ret), 0);
+	return;	
+
+}
 void server_flush(int sock, const char *path){
 	// edit path
 	path = edit_path(path);
@@ -368,6 +409,12 @@ void connection_handler(int sock){
 		case MKDIR:
 			server_mkdir(sock,rpcinfo.path,rpcinfo.mode);
 			break;
+		case FSYNC:
+			server_fsync(sock,rpcinfo.path,rpcinfo.flags);
+			break;
+		case ACCESS:
+			server_access(sock,rpcinfo.path,rpcinfo.flags);
+			break;
 		case PING:
 			server_ping(sock);
 			break;
@@ -445,7 +492,7 @@ int main(int argc, char** argv){
 			threads.push_back(thread(&connection_handler, c_sock));
 		}
 		else{
-			sleep(1);
+			sleep(.1);
 			//break;
 		}
 	}

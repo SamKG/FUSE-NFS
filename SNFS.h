@@ -25,6 +25,9 @@
 #define MKDIR       12
 #define RMDIR	    13
 #define PING        14
+#define FSYNC	    15
+#define ACCESS      16
+#define UNLINK      17
 typedef struct rpcCall{
 	int procedure;
 	char path[1024];
