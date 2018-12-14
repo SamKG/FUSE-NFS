@@ -1,2 +1,3 @@
 client
+.nfs*
 *.swp
