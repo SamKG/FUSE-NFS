@@ -182,11 +182,12 @@ rpcRecv network_read(const networkInfo* netinfo, const char* path, char* buff, s
 	recv(sockfd, (void*) (&received), sizeof(rpcRecv), 0);
 
 	// do not receive more data on a failed read or open
-	if(received.retval < 0)
+	if(received.retval <= 0)
 		return received;
 
 	// Now we have to explicitly read data from server into buffer
 	recv(sockfd, (void*) buff, received.retval,0);	
+	printf("Received data %s (size %d)\n",buff,received.retval);
 	close(sockfd);
 	return received;
 }
@@ -202,6 +203,7 @@ rpcRecv network_write(const networkInfo* netinfo, const char* path, const char* 
 	strcpy(rpcinfo.path,path);
 
 	send(sockfd, &rpcinfo, sizeof(rpcCall), 0); 
+	printf("Writing data %s (size %d)",buff,size);
 	// Now we send string data to server
 	send(sockfd, buff, size, 0);
 	rpcRecv received;

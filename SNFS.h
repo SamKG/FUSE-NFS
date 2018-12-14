@@ -20,7 +20,8 @@
 #define READDIR     10
 #define RELEASEDIR  11
 #define MKDIR       12
-#define PING        13
+#define RMDIR	    13
+#define PING        14
 typedef struct rpcCall{
 	int procedure;
 	char path[1024];

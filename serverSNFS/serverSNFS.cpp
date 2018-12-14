@@ -42,7 +42,7 @@ void server_create(int sock, const char* path, mode_t mode){
 		ret.err = 0;
 		close(ret.retval);
 	}
-
+	close(ret.retval);
 	// send return struct to client
 	send(sock, &ret, sizeof(ret), 0);
 }
@@ -85,7 +85,8 @@ void server_read(int sock, const char* path, size_t size, off_t offset){
 
 	// file successfully opened
 	res = pread(fd, buf, size, offset);
-	if(res < 0){
+	printf("READ DATA %s (size %d) FROM %s\n",buf,res,path);
+	if(res <= 0){
 		ret.retval = res;
 		ret.err = errno;
 		close(fd);
@@ -95,7 +96,7 @@ void server_read(int sock, const char* path, size_t size, off_t offset){
 	// file successfully read
 	ret.retval = res;
 	ret.err = 0;
-
+	
 	// close file
 	close(fd);
 
@@ -129,7 +130,8 @@ void server_write(int sock, const char* path, size_t size, off_t offset){
 
 	// file opened, receive data to be written
 	recv(sock, buf, size, 0);
-	res = write(fd, buf, size, offset);
+	printf("Writing data %s (size %d)\n",buf,size);
+	res = pwrite(fd, buf, size, offset);
 	if(res < 0){
 		ret.retval = res;
 		ret.err = errno;
