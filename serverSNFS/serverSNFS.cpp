@@ -103,6 +103,23 @@ void server_open(int sock, const char* path, const int flags){
 	send(sock, &ret, sizeof(ret), 0);
 }
 
+void server_opendir(int sock, const char* path){
+	// first edit path to indicate server side mount point
+	path = edit_path(path);
+	printf("Opening dir %s\n",path);
+	// execute operation and put relevant results into return struct
+	rpcRecv ret;
+	ret.retval = 1;
+	if(ret.retval < 0)
+		ret.err = EACCES;
+	else{
+		ht_ins(&fd_ht,path,ret.retval);
+		ret.err = 0;
+	}
+
+	// send return struct to client
+	send(sock, &ret, sizeof(ret), 0);
+}
 void server_read(int sock, const char* path, size_t size, off_t offset){
 	// first edit path to indicate server side mount point
 	path = edit_path(path);
@@ -340,7 +357,7 @@ void connection_handler(int sock){
 			server_write(sock, rpcinfo.path, rpcinfo.size, rpcinfo.offset);
 			break;
 		case OPENDIR:
-			//server_opendir(sock, rpcinfo.path);
+			server_opendir(sock, rpcinfo.path);
 			break;
 		case READDIR:
 			server_readdir(sock,rpcinfo.path);

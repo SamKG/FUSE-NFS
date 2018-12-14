@@ -69,6 +69,15 @@ static int client_open(const char *path, struct fuse_file_info *fi)
 	return 0; 
 }
 
+static int client_opendir(const char *path, struct fuse_file_info *fi)
+{
+	path = edit_path(path);
+	rpcRecv received = network_opendir(netinfo,path);
+	if(received.retval < 0)
+		return -received.err;
+
+	return 0; 
+}
 static int client_read(const char *path, char *buf, size_t size, off_t offset,
 		struct fuse_file_info *fi)
 {
@@ -173,7 +182,7 @@ static struct fuse_operations client_oper = {
 	.getattr	= client_getattr,
 	.read		= client_read,
 	.write		= client_write,
-	//.opendir = client_opendir,
+	.opendir = client_opendir,
 	.readdir	= client_readdir,
 	.releasedir = client_releasedir,
 	.mkdir		= client_mkdir,
