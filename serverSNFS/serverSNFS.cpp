@@ -129,7 +129,7 @@ void server_write(int sock, const char* path, size_t size, off_t offset){
 
 	// file opened, receive data to be written
 	recv(sock, buf, size, 0);
-	res = pwrite(fd, buf, size, offset);
+	res = write(fd, buf, size, offset);
 	if(res < 0){
 		ret.retval = res;
 		ret.err = errno;
