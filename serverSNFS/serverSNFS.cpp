@@ -255,8 +255,9 @@ void server_flush(int sock, const char *path, int rpc_fd){
 
 	// open file first
 	rpcRecv ret;
-	int fd;
-	
+	//int fd;
+
+/*	
 	if(rpc_fd != -1)
 		fd = rpc_fd;
 	else fd = open(path, O_RDWR);
@@ -280,6 +281,12 @@ ERROR:
 	// close file if just opened
 	if(fd != rpc_fd)
 		close(fd);
+*/
+	ret.retval = close(dup(rpc_fd));
+	if(ret.retval < 0){
+		ret.err = errno;
+	}
+	else ret.err = 0;
 
 	// send return struct
 	send(sock, &ret, sizeof(ret), 0);
