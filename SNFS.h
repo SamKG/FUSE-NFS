@@ -5,6 +5,9 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <dirent.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
 #define PORT 16555
 
 // define enums
@@ -26,7 +29,6 @@ typedef struct rpcCall{
 	int procedure;
 	char path[1024];
 	int flags;
-	int fd;
 	size_t size;
 	off_t offset;
 	mode_t mode;

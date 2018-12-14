@@ -111,7 +111,7 @@ rpcRecv network_getattr(const networkInfo* netinfo, const char* path, struct sta
 	close(sockfd);
 	return received;
 }
-rpcRecv network_flush(const networkInfo* netinfo, const char* path, int fd){
+rpcRecv network_flush(const networkInfo* netinfo, const char* path){
 	int sockfd = connection_setup(netinfo);
 	if(sockfd == -1){
 		return errRpc;
@@ -119,7 +119,6 @@ rpcRecv network_flush(const networkInfo* netinfo, const char* path, int fd){
 
 	rpcCall rpcinfo;
 	rpcinfo.procedure = FLUSH;
-	rpcinfo.fd = fd;
 	strcpy(rpcinfo.path,path);
 
 	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
@@ -149,7 +148,7 @@ rpcRecv network_truncate(const networkInfo* netinfo, const char* path, off_t siz
 	return received;
 }
 
-rpcRecv network_release(const networkInfo *netinfo, const char* path, int fd){
+rpcRecv network_release(const networkInfo *netinfo, const char* path){
 	int sockfd = connection_setup(netinfo);
 	if(sockfd == -1){
 		return errRpc;
@@ -157,7 +156,6 @@ rpcRecv network_release(const networkInfo *netinfo, const char* path, int fd){
 
 	rpcCall rpcinfo;
 	rpcinfo.procedure = RELEASE;
-	rpcinfo.fd = fd;
 	strcpy(rpcinfo.path, path);
 
 	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
@@ -168,7 +166,7 @@ rpcRecv network_release(const networkInfo *netinfo, const char* path, int fd){
 	return received;
 }
 
-rpcRecv network_read(const networkInfo* netinfo, const char* path, char* buff, size_t size, off_t offset, int fd){
+rpcRecv network_read(const networkInfo* netinfo, const char* path, char* buff, size_t size, off_t offset){
 	int sockfd = connection_setup(netinfo);
 	if(sockfd == -1){
 		return errRpc;
@@ -178,7 +176,6 @@ rpcRecv network_read(const networkInfo* netinfo, const char* path, char* buff, s
 	rpcinfo.procedure = READ;
 	rpcinfo.size = size;
 	rpcinfo.offset = offset;
-	rpcinfo.fd = fd;
 	strcpy(rpcinfo.path, path);
 
 	send(sockfd, &rpcinfo, sizeof(rpcCall), 0); 
@@ -193,11 +190,11 @@ rpcRecv network_read(const networkInfo* netinfo, const char* path, char* buff, s
 
 	// Now we have to explicitly read data from server into buffer
 	recv(sockfd, (void*) buff, received.retval,0);	
-	printf("Received data %s (size %d)\n",buff,received.retval);
+	printf("Received data %.*s (size %d)\n",received.retval,buff,received.retval);
 	close(sockfd);
 	return received;
 }
-rpcRecv network_write(const networkInfo* netinfo, const char* path, const char* buff, size_t size, off_t offset, int fd){
+rpcRecv network_write(const networkInfo* netinfo, const char* path, const char* buff, size_t size, off_t offset){
 	int sockfd = connection_setup(netinfo);
 	if(sockfd == -1){
 		printf("Error connecting socket\n");
@@ -207,7 +204,7 @@ rpcRecv network_write(const networkInfo* netinfo, const char* path, const char* 
 	rpcCall rpcinfo;
 	rpcinfo.procedure = WRITE;
 	rpcinfo.size = size;
-	rpcinfo.fd = fd;
+	rpcinfo.offset = offset;
 	strcpy(rpcinfo.path,path);
 
 	send(sockfd, &rpcinfo, sizeof(rpcCall), 0); 
@@ -246,6 +243,9 @@ rpcRecv network_readdir(const networkInfo* netinfo, const char* path, void* buf,
 	send(sockfd, &rpcinfo, sizeof(rpcCall), 0); 
 	rpcRecv received;
 	recv(sockfd, (void*) (&received), sizeof(rpcRecv), 0);
+	if (received.retval < 0){
+		return received;
+	}
 	struct dirent* dataArray = (struct dirent*) malloc(sizeof(struct dirent)*received.dataLen);	
 	for (int i = 0 ; i < received.dataLen ; i++){
 		recv(sockfd, ((void*) dataArray) + sizeof(struct dirent)*i, sizeof(struct dirent),0);
