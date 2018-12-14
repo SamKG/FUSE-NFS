@@ -1,2 +1,2 @@
-echo 'Running ls /tmp/client16555'
-ls /tmp/client16555
+echo 'Running ls -al /tmp/client16555'
+ls -al /tmp/client16555
