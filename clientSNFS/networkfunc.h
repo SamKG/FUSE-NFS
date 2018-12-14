@@ -31,7 +31,7 @@ rpcRecv network_open(const networkInfo*, const char*, const int);
 rpcRecv network_getattr(const networkInfo*, const char*, struct stat*);
 rpcRecv network_flush(const networkInfo* netinfo, const char* path, int fd);
 rpcRecv network_release(const networkInfo* netinfo, const char* path, int fd);
-rpcRecv network_truncate(const networkInfo* netinfo, const char* path, off_t size, int fd);
+rpcRecv network_truncate(const networkInfo* netinfo, const char* path, off_t size);
 rpcRecv network_read(const networkInfo* netinfo, const char* path, char* buff, size_t size, off_t offset, int fd);
 rpcRecv network_write(const networkInfo* netinfo, const char* path, const char* buff, size_t size, off_t offset, int fd);
 rpcRecv network_opendir(const networkInfo* netinfo, const char* path);

@@ -140,14 +140,12 @@ static int client_mkdir(const char *path, mode_t mode)
 	return 0;
 }
 
-static int client_truncate(const char *path, off_t size, struct fuse_file_info *fi)
+static int client_truncate(const char *path, off_t size)
 {
 	path = edit_path(path);
 	rpcRecv received;
 
-	if(fi == NULL)
-		received = network_truncate(netinfo,path,size, -1);
-	else received = network_truncate(netinfo,path,size, fi->fh);
+	else received = network_truncate(netinfo,path,size);
 
 	if(received.retval < 0)
 		return -received.err;

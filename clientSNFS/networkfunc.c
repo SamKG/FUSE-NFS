@@ -130,7 +130,7 @@ rpcRecv network_flush(const networkInfo* netinfo, const char* path, int fd){
 	return received;
 }
 
-rpcRecv network_truncate(const networkInfo* netinfo, const char* path, off_t size, int fd){
+rpcRecv network_truncate(const networkInfo* netinfo, const char* path, off_t size){
 	int sockfd = connection_setup(netinfo);
 	if(sockfd == -1){
 		return errRpc;
@@ -139,7 +139,6 @@ rpcRecv network_truncate(const networkInfo* netinfo, const char* path, off_t siz
 	rpcCall rpcinfo;
 	rpcinfo.procedure = TRUNCATE;
 	rpcinfo.offset = size;
-	rpcinfo.fd = fd;
 	strcpy(rpcinfo.path,path);
 
 	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
