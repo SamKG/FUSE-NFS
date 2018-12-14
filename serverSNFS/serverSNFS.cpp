@@ -307,6 +307,22 @@ void server_fsync(int sock, const char *path,int mode){
 	send(sock, &ret, sizeof(ret), 0);
 	return;	
 }
+void server_unlink(int sock, const char *path){
+	// first edit path for mount address
+	path = edit_path(path);
+	printf("unlinking %s\n",path);
+	struct stat st;
+	rpcRecv ret;
+
+	ret.retval = unlink(path);
+	ret.err = 0;
+	if (ret.retval < 0){
+		ret.err = errno;
+	}
+	send(sock, &ret, sizeof(ret), 0);
+	return;	
+
+}
 void server_access(int sock, const char *path,int mode){
 	// first edit path for mount address
 	path = edit_path(path);
@@ -411,6 +427,9 @@ void connection_handler(int sock){
 			break;
 		case FSYNC:
 			server_fsync(sock,rpcinfo.path,rpcinfo.flags);
+			break;
+		case UNLINK:
+			server_unlink(sock,rpcinfo.path);
 			break;
 		case ACCESS:
 			server_access(sock,rpcinfo.path,rpcinfo.flags);
