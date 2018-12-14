@@ -153,15 +153,17 @@ static int client_truncate(const char *path, off_t size)
 
 static struct fuse_operations client_oper = {
 	.create		= client_create,
-	.getattr	= client_getattr,
-	.readdir	= client_readdir,
 	.open		= client_open,
-	.read		= client_read,
-	.write		= client_write,
 	.flush 		= client_flush,
 	.release	= client_release,
-	.mkdir		= client_mkdir,
 	.truncate	= client_truncate,
+	.getattr	= client_getattr,
+	.read		= client_read,
+	.write		= client_write,
+	//.opendir = client_opendir,
+	.readdir	= client_readdir,
+	//.releasedir = client_releasedir,
+	.mkdir		= client_mkdir,
 };
 
 int main(int argc, char *argv[])
@@ -182,9 +184,9 @@ int main(int argc, char *argv[])
 		}
 		else{
 			if(strcmp(curr, "-mount") == 0){
-				mount_path_length = strlen(argv[i + 1]);
+				mount_path_length = strlen(argv[i++]);
+				argvpassed[argcpassed++] = argv[i];
 			}
-			argvpassed[argcpassed++] = curr;
 		}
 	}
 	printf("Starting fuse with %s:%s\n",addressString,portString);	

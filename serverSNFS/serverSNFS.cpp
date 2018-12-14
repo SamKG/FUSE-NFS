@@ -323,33 +323,40 @@ void connection_handler(int sock){
 		case OPEN:
 			server_open(sock, rpcinfo.path, rpcinfo.flags);
 			break;
-		case READ:
-			server_read(sock, rpcinfo.path, rpcinfo.size, rpcinfo.offset, rpcinfo.fd);
-			break;
 		case FLUSH:
 			server_flush(sock, rpcinfo.path, rpcinfo.fd);
 			break;
 		case RELEASE:
 			server_release(sock, rpcinfo.path, rpcinfo.fd);
 			break;
-		case WRITE:
-			server_write(sock, rpcinfo.path, rpcinfo.size, rpcinfo.offset, rpcinfo.fd);
+		case TRUNCATE:
+			server_truncate(sock, rpcinfo.path, rpcinfo.offset);
 			break;
 		case GETATTR:
 			server_getattr(sock, rpcinfo.path);
 			break;
-		case MKDIR:
-			server_mkdir(sock,rpcinfo.path,rpcinfo.mode);
+		case READ:
+			server_read(sock, rpcinfo.path, rpcinfo.size, rpcinfo.offset, rpcinfo.fd);
 			break;
+		case WRITE:
+			server_write(sock, rpcinfo.path, rpcinfo.size, rpcinfo.offset, rpcinfo.fd);
+			break;
+		//case OPENDIR:
+			//server_opendir(sock, rpcinfo.path);
+			//break;
 		case READDIR:
 			server_readdir(sock,rpcinfo.path);
+			break;
+		//case RELEASEDIR:
+			//server_releasedir(sock, rpcinfo.path);
+			//break;
+		case MKDIR:
+			server_mkdir(sock,rpcinfo.path,rpcinfo.mode);
 			break;
 		case PING:
 			server_ping(sock);
 			break;
-		case TRUNCATE:
-			server_truncate(sock, rpcinfo.path, rpcinfo.offset);
-			break;
+		
 	}
 
 	close(sock);
