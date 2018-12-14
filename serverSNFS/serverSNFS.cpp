@@ -284,19 +284,21 @@ ERROR:
 	// send return struct
 	send(sock, &ret, sizeof(ret), 0);
 }
-void server_truncate(int sock, const char *path, off_t size, const int flags){
+void server_truncate(int sock, const char *path, off_t size, int rpc_fd){
 	path = edit_path(path);
 	rpcRecv ret;
-	//int fd = open(path, flags);
-	ret.retval = truncate(path, size);
-	//truncate vs ftruncate? ftruncate uses fd
+	
+	if(rpc_fd != -1)
+		ret.retval = ftruncate(rpc_fd, size);
+	else ret.retval = truncate(path, size);
+	
 	if(ret.retval == -1){
 		ret.err = errno;
-	}else{
+	}
+	else{
 		ret.err = 0;
 	}
 	send(sock, &ret, sizeof(ret), 0);
-	//close(fd);
 }
 
 void connection_handler(int sock){
@@ -335,7 +337,7 @@ void connection_handler(int sock){
 			server_ping(sock);
 			break;
 		case TRUNCATE:
-			server_truncate(sock, rpcinfo.path, rpcinfo.offset, rpcinfo.flags);
+			server_truncate(sock, rpcinfo.path, rpcinfo.offset, rpcinfo.fd);
 			break;
 	}
 

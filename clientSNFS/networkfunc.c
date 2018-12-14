@@ -146,7 +146,7 @@ rpcRecv network_release(const networkInfo* netinfo, const char* path){
 	close(sockfd);
 	return received;
 }
-rpcRecv network_truncate(const networkInfo* netinfo, const char* path, const int size){
+rpcRecv network_truncate(const networkInfo* netinfo, const char* path, off_t size, int fd){
 	int sockfd = connection_setup(netinfo);
 	if(sockfd == -1){
 		return errRpc;
@@ -154,7 +154,8 @@ rpcRecv network_truncate(const networkInfo* netinfo, const char* path, const int
 
 	rpcCall rpcinfo;
 	rpcinfo.procedure = TRUNCATE;
-	rpcinfo.size = size;
+	rpcinfo.offset = size;
+	rpcinfo.fd = fd;
 	strcpy(rpcinfo.path,path);
 
 	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 
