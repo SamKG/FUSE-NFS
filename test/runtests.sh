@@ -1,3 +1,8 @@
+printf "\nPress any key to start tests...\n"
+read -n 1 -s
+./test_create.sh
+printf "\nPress any key to run next test..\n"
+read -n 1 -s
 ./cat_test.sh
 printf "\nPress any key to run next test..\n"
 read -n 1 -s
