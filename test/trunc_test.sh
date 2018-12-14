@@ -1,0 +1,3 @@
+make
+./truncate
+make clean
