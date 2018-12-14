@@ -170,6 +170,8 @@ int main(int argc, char *argv[])
 {
 	int argcpassed = 0;	
 	char** argvpassed = (char**) malloc(sizeof(char*)*256);	
+
+	argvpassed[argcpassed++] = argv[0];
 	
 	// Parse out port and address to use	
 	char* portString;
