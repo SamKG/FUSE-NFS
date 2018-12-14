@@ -1,2 +1,2 @@
 ! mkdir ~/fservertest/
-../serverSNFS/server -port 16555 -mount ~/fservertest/
+../serverSNFS/serverSNFS -port 16555 -mount ~/fservertest/
