@@ -1,6 +1,3 @@
-./fmount.sh
-./cat_test.sh
-./trunc_test.sh
-./mkdir_test.sh
-./ls_test.sh
-vim /tmp/client16555/testfile.txt
+! fusermount -u /tmp/client16555 
+! mkdir /tmp/client16555
+../clientSNFS/clientSNFS -address `hostname` -port 16555 -mount /tmp/client16555/
