@@ -139,7 +139,7 @@ void server_write(int sock, const char* path, size_t size, off_t offset, int rpc
 
 	// file opened, receive data to be written
 	recv(sock, buf, size, 0);
-	printf("Writing data %s (size %d)\n",buf,size);
+	printf("Writing data %s (size %d)\n",buf,(int)size);
 	res = pwrite(fd, buf, size, offset);
 	if(res < 0){
 		ret.retval = res;
@@ -279,7 +279,7 @@ ERROR:
 
 	// close file if just opened
 	if(fd != rpc_fd)
-		close(res);
+		close(fd);
 
 	// send return struct
 	send(sock, &ret, sizeof(ret), 0);
