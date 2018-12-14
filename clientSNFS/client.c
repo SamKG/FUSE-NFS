@@ -89,6 +89,7 @@ static int client_read(const char *path, char *buf, size_t size, off_t offset,
 static int client_write(const char *path, const char *buf, size_t size, off_t offset,
 		struct fuse_file_info *fi)
 {
+	printf("FUSE write accessed\n");
 	path = edit_path(path);
 	rpcRecv received;
 

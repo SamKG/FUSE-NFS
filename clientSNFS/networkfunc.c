@@ -200,6 +200,7 @@ rpcRecv network_read(const networkInfo* netinfo, const char* path, char* buff, s
 rpcRecv network_write(const networkInfo* netinfo, const char* path, const char* buff, size_t size, off_t offset, int fd){
 	int sockfd = connection_setup(netinfo);
 	if(sockfd == -1){
+		printf("Error connecting socket\n");
 		return errRpc;
 	}
 
