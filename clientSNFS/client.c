@@ -207,7 +207,9 @@ static int client_truncate(const char *path, off_t size)
 
 	return 0;
 }
-
+static int client_utimens(const char* path, const struct timespec ts[2]){
+	return 0;
+}
 static struct fuse_operations client_oper = {
 	.create		= client_create,
 	.open		= client_open,
@@ -225,6 +227,7 @@ static struct fuse_operations client_oper = {
 	.fsync		= client_fsync,
 	.unlink		= client_unlink,
 	.rmdir		= client_rmdir,		
+	.utimens	= client_utimens,
 };
 
 int main(int argc, char *argv[])
