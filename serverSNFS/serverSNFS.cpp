@@ -38,11 +38,11 @@ void server_create(int sock, const char* path, mode_t mode){
 	if(ret.retval < 0)
 		ret.err = errno;
 	else{
-		//close file
+		// close file
 		ret.err = 0;
-		close(ret.retval);
+		//
 	}
-	close(ret.retval);
+	// close(ret.retval);
 	// send return struct to client
 	send(sock, &ret, sizeof(ret), 0);
 }
@@ -66,7 +66,7 @@ void server_open(int sock, const char* path, const int flags){
 	send(sock, &ret, sizeof(ret), 0);
 }
 
-void server_read(int sock, const char* path, size_t size, off_t offset){
+void server_read(int sock, const char* path, size_t size, off_t offset, int rpc_fd){
 	// first edit path to indicate server side mount point
 	path = edit_path(path);
 
@@ -74,7 +74,11 @@ void server_read(int sock, const char* path, size_t size, off_t offset){
 	rpcRecv ret;
 	int res;
 	char* buf = (char*)malloc(size);
-	int fd = open(path, O_RDONLY);
+	int fd;
+	
+	if(rpc_fd != -1)
+		fd = rpc_fd;
+	else fd = open(path, O_RDONLY);
 
 	if(fd < 0){
 		// set error values, send empty data
@@ -89,7 +93,9 @@ void server_read(int sock, const char* path, size_t size, off_t offset){
 	if(res <= 0){
 		ret.retval = res;
 		ret.err = errno;
-		close(fd);
+		
+		if(fd != rpc_fd)
+			close(fd);
 		goto ERROR;
 	}
 
@@ -98,7 +104,8 @@ void server_read(int sock, const char* path, size_t size, off_t offset){
 	ret.err = 0;
 	
 	// close file
-	close(fd);
+	if(fd != rpc_fd)
+		close(fd);
 
 	// send return struct to client
 	send(sock, &ret, sizeof(ret), 0);
@@ -111,7 +118,7 @@ ERROR:
 	send(sock, &ret, sizeof(ret), 0);
 }
 
-void server_write(int sock, const char* path, size_t size, off_t offset){
+void server_write(int sock, const char* path, size_t size, off_t offset, int rpc_fd){
 	// first edit path to indicate server side mount point
 	path = edit_path(path);
 
@@ -119,7 +126,11 @@ void server_write(int sock, const char* path, size_t size, off_t offset){
 	rpcRecv ret;
 	int res;
 	char* buf = (char*)malloc(size);
-	int fd = open(path, O_WRONLY);
+	int fd;
+
+	if(rpc_fd != -1)
+		fd = rpc_fd;
+	else fd = open(path, O_WRONLY);
 
 	if(fd < 0){
 		// set error values, send empty data
@@ -135,7 +146,8 @@ void server_write(int sock, const char* path, size_t size, off_t offset){
 	if(res < 0){
 		ret.retval = res;
 		ret.err = errno;
-		close(fd);
+		if(fd != rpc_fd)
+			close(fd);
 		goto ERROR;
 	}
 
@@ -144,7 +156,8 @@ void server_write(int sock, const char* path, size_t size, off_t offset){
 	ret.err = 0;
 
 	// close file
-	close(fd);
+	if(fd != rpc_fd)
+		close(fd);
 
 	// send return struct to client
 	send(sock, &ret, sizeof(ret), 0);
@@ -294,7 +307,7 @@ void connection_handler(int sock){
 			server_open(sock, rpcinfo.path, rpcinfo.flags);
 			break;
 		case READ:
-			server_read(sock, rpcinfo.path, rpcinfo.size, rpcinfo.offset);
+			server_read(sock, rpcinfo.path, rpcinfo.size, rpcinfo.offset, rpcinfo.fd);
 			break;
 		case FLUSH:
 			server_flush(sock, rpcinfo.path);
@@ -303,7 +316,7 @@ void connection_handler(int sock){
 			//server_release(sock, rpcinfo.path);
 			break;
 		case WRITE:
-			server_write(sock, rpcinfo.path, rpcinfo.size, rpcinfo.offset);
+			server_write(sock, rpcinfo.path, rpcinfo.size, rpcinfo.offset, rpcinfo.fd);
 			break;
 		case GETATTR:
 			server_getattr(sock, rpcinfo.path);

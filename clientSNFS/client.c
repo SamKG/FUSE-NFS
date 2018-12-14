@@ -31,6 +31,8 @@ static int client_create(const char *path, mode_t mode, struct fuse_file_info *f
 	rpcRecv received = network_create(netinfo, path, mode);
 	if(received.retval < 0)
 		return -received.err;
+
+	fi->fh = received.retval;
 	return 0; 
 }
 
@@ -63,6 +65,8 @@ static int client_open(const char *path, struct fuse_file_info *fi)
 	rpcRecv received = network_open(netinfo,path, O_RDWR);
 	if(received.retval < 0)
 		return -received.err;
+
+	fi->fh = received.retval;
 	return 0; 
 }
 
@@ -70,7 +74,12 @@ static int client_read(const char *path, char *buf, size_t size, off_t offset,
 		struct fuse_file_info *fi)
 {
 	path = edit_path(path);
-	rpcRecv received = network_read(netinfo,path,buf,size,offset);
+	rpcRecv received;
+	
+	if(fi == NULL)
+		received = network_read(netinfo,path,buf,size,offset, -1);
+	else received = network_read(netinfo,path,buf,size,offset, fi->fh);
+	
 	if(received.retval <= 0)
 		return -received.err;
 	// retval will be the return of pread on the server side, aka number of bytes read
@@ -82,6 +91,11 @@ static int client_write(const char *path, const char *buf, size_t size, off_t of
 {
 	path = edit_path(path);
 	rpcRecv received = network_write(netinfo, path, buf, size, offset);
+
+	if(fi == NULL)
+		received = network_read(netinfo,path,buf,size,offset, -1);
+	else received = network_read(netinfo,path,buf,size,offset, fi->fh);
+
 	if(received.retval < 0)
 		return -received.err;
 	return received.retval;

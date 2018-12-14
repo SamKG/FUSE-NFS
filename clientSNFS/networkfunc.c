@@ -163,7 +163,7 @@ rpcRecv network_truncate(const networkInfo* netinfo, const char* path, const int
 	close(sockfd);
 	return received;
 }
-rpcRecv network_read(const networkInfo* netinfo, const char* path, char* buff, size_t size, off_t offset){
+rpcRecv network_read(const networkInfo* netinfo, const char* path, char* buff, size_t size, off_t offset, int fd){
 	int sockfd = connection_setup(netinfo);
 	if(sockfd == -1){
 		return errRpc;
@@ -173,6 +173,7 @@ rpcRecv network_read(const networkInfo* netinfo, const char* path, char* buff, s
 	rpcinfo.procedure = READ;
 	rpcinfo.size = size;
 	rpcinfo.offset = offset;
+	rpcinfo.fd = fd;
 	strcpy(rpcinfo.path, path);
 
 	send(sockfd, &rpcinfo, sizeof(rpcCall), 0); 
@@ -191,7 +192,7 @@ rpcRecv network_read(const networkInfo* netinfo, const char* path, char* buff, s
 	close(sockfd);
 	return received;
 }
-rpcRecv network_write(const networkInfo* netinfo, const char* path, const char* buff, size_t size, off_t offset){
+rpcRecv network_write(const networkInfo* netinfo, const char* path, const char* buff, size_t size, off_t offset, int fd){
 	int sockfd = connection_setup(netinfo);
 	if(sockfd == -1){
 		return errRpc;
@@ -200,6 +201,7 @@ rpcRecv network_write(const networkInfo* netinfo, const char* path, const char* 
 	rpcCall rpcinfo;
 	rpcinfo.procedure = WRITE;
 	rpcinfo.size = size;
+	rpcinfo.fd = fd;
 	strcpy(rpcinfo.path,path);
 
 	send(sockfd, &rpcinfo, sizeof(rpcCall), 0); 
