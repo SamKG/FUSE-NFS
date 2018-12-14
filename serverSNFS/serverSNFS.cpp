@@ -15,6 +15,7 @@ char mount_path[1024];
 
 char* edit_path(const char* path){
 	char* new_path = (char*) malloc(sizeof(char) * (strlen(path) + strlen(mount_path) + 1));
+	new_path[0] = '\0';
 	strcat(new_path, mount_path);
 	strcat(new_path, path);
 
@@ -215,6 +216,26 @@ void server_readdir(int sock, const char *path){
 	return;	
 
 }
+
+void server_mkdir(int sock, const char *path,mode_t mode){
+	// first edit path for mount address
+	path = edit_path(path);
+	printf("Making directory at %s\n",path);
+	struct stat st;
+	rpcRecv ret;
+	if (mkdir(path,mode) == -1){
+		ret.retval = -1;
+		ret.err = errno;
+		send(sock, &ret, sizeof(ret), 0);
+		return;
+	}	
+	ret.retval = 0;
+	ret.err = 0;
+	
+	send(sock, &ret, sizeof(ret), 0);
+	return;	
+
+}
 void server_flush(int sock, const char *path){
 	// edit path
 	path = edit_path(path);
@@ -271,6 +292,9 @@ void connection_handler(int sock){
 			break;
 		case GETATTR:
 			server_getattr(sock, rpcinfo.path);
+			break;
+		case MKDIR:
+			server_mkdir(sock,rpcinfo.path,rpcinfo.mode);
 			break;
 		case READDIR:
 			server_readdir(sock,rpcinfo.path);

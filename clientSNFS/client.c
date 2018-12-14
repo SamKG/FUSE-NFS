@@ -22,7 +22,7 @@ Example, if the mount path is /tmp/fuse:
 	file2.txt will return /file2.txt	*/
 static char* edit_path(const char *path){
 	char* newpath = (char*) ((void*)path);
-	return newpath + mount_path_length; 
+	return newpath + mount_path_length + 1; 
 }
 
 static int client_create(const char *path, mode_t mode, struct fuse_file_info *fi)
@@ -101,6 +101,16 @@ static int client_release(const char *path, struct fuse_file_info *fi)
 	return 0;
 }
 
+static int client_mkdir(const char *path, mode_t mode)
+{
+	path = edit_path(path);
+	printf("Making directory at %s\n",path);
+	rpcRecv received = network_mkdir(netinfo, path,mode);
+	if(received.retval < 0)
+		return -received.err;
+	
+	return 0;
+}
 static struct fuse_operations client_oper = {
 	.create		= client_create,
 	.getattr	= client_getattr,
@@ -110,6 +120,7 @@ static struct fuse_operations client_oper = {
 	.write		= client_write,
 	.flush 		= client_flush,
 	.release	= client_release,
+	.mkdir		= client_mkdir,
 };
 
 int main(int argc, char *argv[])
