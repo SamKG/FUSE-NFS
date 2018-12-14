@@ -303,7 +303,7 @@ void server_truncate(int sock, const char *path, off_t size, int rpc_fd){
 
 void server_release(int sock, const char *path, int rpc_fd){
 	rpcRecv ret;
-	ret.retval = close(fd);
+	ret.retval = close(rpc_fd);
 
 	if(ret.retval == -1){
 		ret.err = errno;
