@@ -90,11 +90,11 @@ static int client_write(const char *path, const char *buf, size_t size, off_t of
 		struct fuse_file_info *fi)
 {
 	path = edit_path(path);
-	rpcRecv received = network_write(netinfo, path, buf, size, offset);
+	rpcRecv received;
 
 	if(fi == NULL)
-		received = network_read(netinfo,path,buf,size,offset, -1);
-	else received = network_read(netinfo,path,buf,size,offset, fi->fh);
+		received = network_write(netinfo,path,buf,size,offset, -1);
+	else received = network_write(netinfo,path,buf,size,offset, fi->fh);
 
 	if(received.retval < 0)
 		return -received.err;
@@ -104,7 +104,12 @@ static int client_write(const char *path, const char *buf, size_t size, off_t of
 static int client_flush(const char *path, struct fuse_file_info *fi)
 {
 	path = edit_path(path);
-	rpcRecv received = network_flush(netinfo, path);
+	rpcRecv received;
+
+	if(fi == NULL)
+		received = network_flush(netinfo,path,buf,size,offset, -1);
+	else received = network_flush(netinfo,path,buf,size,offset, fi->fh);
+
 	if(received.retval < 0)
 		return -received.err;
 	return 0;
@@ -125,6 +130,13 @@ static int client_mkdir(const char *path, mode_t mode)
 	
 	return 0;
 }
+
+static int client_truncate(const char *path, off_t size, struct fuse_file_info *fi)
+{
+	path = edit_path(path);
+
+}
+
 static struct fuse_operations client_oper = {
 	.create		= client_create,
 	.getattr	= client_getattr,

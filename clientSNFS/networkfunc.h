@@ -29,7 +29,7 @@ int connection_setup(const networkInfo* info);
 rpcRecv network_create(const networkInfo*, const char*, mode_t);
 rpcRecv network_open(const networkInfo*, const char*, const int);
 rpcRecv network_getattr(const networkInfo*, const char*, struct stat*);
-rpcRecv network_flush(const networkInfo* netinfo, const char* path);
+rpcRecv network_flush(const networkInfo* netinfo, const char* path, int fd);
 rpcRecv network_release(const networkInfo* netinfo, const char* path);
 rpcRecv network_truncate(const networkInfo* netinfo, const char* path, const int size);
 rpcRecv network_read(const networkInfo* netinfo, const char* path, char* buff, size_t size, off_t offset, int fd);

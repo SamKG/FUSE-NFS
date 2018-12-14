@@ -111,7 +111,7 @@ rpcRecv network_getattr(const networkInfo* netinfo, const char* path, struct sta
 	close(sockfd);
 	return received;
 }
-rpcRecv network_flush(const networkInfo* netinfo, const char* path){
+rpcRecv network_flush(const networkInfo* netinfo, const char* path, int fd){
 	int sockfd = connection_setup(netinfo);
 	if(sockfd == -1){
 		return errRpc;
@@ -119,6 +119,7 @@ rpcRecv network_flush(const networkInfo* netinfo, const char* path){
 
 	rpcCall rpcinfo;
 	rpcinfo.procedure = FLUSH;
+	rpcinfo.fd = fd;
 	strcpy(rpcinfo.path,path);
 
 	send(sockfd, &rpcinfo,sizeof(rpcCall),0); 

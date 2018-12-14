@@ -38,9 +38,7 @@ void server_create(int sock, const char* path, mode_t mode){
 	if(ret.retval < 0)
 		ret.err = errno;
 	else{
-		// close file
 		ret.err = 0;
-		//
 	}
 	// close(ret.retval);
 	// send return struct to client
@@ -103,7 +101,7 @@ void server_read(int sock, const char* path, size_t size, off_t offset, int rpc_
 	ret.retval = res;
 	ret.err = 0;
 	
-	// close file
+	// close file if just opened
 	if(fd != rpc_fd)
 		close(fd);
 
@@ -155,7 +153,7 @@ void server_write(int sock, const char* path, size_t size, off_t offset, int rpc
 	ret.retval = res;
 	ret.err = 0;
 
-	// close file
+	// close file if just opened
 	if(fd != rpc_fd)
 		close(fd);
 
@@ -251,32 +249,37 @@ void server_mkdir(int sock, const char *path,mode_t mode){
 	return;	
 
 }
-void server_flush(int sock, const char *path){
+void server_flush(int sock, const char *path, int rpc_fd){
 	// edit path
 	path = edit_path(path);
 
 	// open file first
 	rpcRecv ret;
-	int res = open(path, O_RDWR);
+	int fd;
+	
+	if(rpc_fd != -1)
+		fd = rpc_fd;
+	else fd = open(path, O_RDWR);
 
 	// error check
-	if(res < 0){
+	if(fd < 0){
 ERROR:
-		ret.retval = res;
+		ret.retval = fd;
 		ret.err = errno;
 		send(sock, &ret, sizeof(ret), 0);
 		return;
 	}
 
 	// open successful
-	ret.retval = fsync(res);
+	ret.retval = fsync(fd);
 	if(ret.retval < 0){
 		goto ERROR;
 	}
 	ret.err = 0;
 
-	// close file
-	close(res);
+	// close file if just opened
+	if(fd != rpc_fd)
+		close(res);
 
 	// send return struct
 	send(sock, &ret, sizeof(ret), 0);
@@ -295,6 +298,7 @@ void server_truncate(int sock, const char *path, off_t size, const int flags){
 	send(sock, &ret, sizeof(ret), 0);
 	//close(fd);
 }
+
 void connection_handler(int sock){
 	rpcCall rpcinfo;
 	recv(sock, &rpcinfo, sizeof(rpcinfo), 0);
@@ -310,7 +314,7 @@ void connection_handler(int sock){
 			server_read(sock, rpcinfo.path, rpcinfo.size, rpcinfo.offset, rpcinfo.fd);
 			break;
 		case FLUSH:
-			server_flush(sock, rpcinfo.path);
+			server_flush(sock, rpcinfo.path, rpcinfo.fd);
 			break;
 		case RELEASE:
 			//server_release(sock, rpcinfo.path);
