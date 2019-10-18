@@ -2,12 +2,14 @@
 in clientSNFS:
 	compilation:
 		make clean && make
+		
 	usage:
 		./clientSNFS -address <server hostname> -port <port> -mount <directory to mount to>	
 
 in serverSNFS
 	compilation:
 		make clean && make
+		
 	usage:
 		./serverSNFS -port <port> -mount <directory to mount to>
 
