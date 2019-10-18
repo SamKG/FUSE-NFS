@@ -1,17 +1,19 @@
 # USAGE
 in clientSNFS:
-	compilation:
-		make clean && make
+
+compilation:
+	make clean && make
 		
-	usage:
-		./clientSNFS -address <server hostname> -port <port> -mount <directory to mount to>	
+usage:
+	./clientSNFS -address <server hostname> -port <port> -mount <directory to mount to>	
 
 in serverSNFS
-	compilation:
-		make clean && make
-		
-	usage:
-		./serverSNFS -port <port> -mount <directory to mount to>
+
+compilation:
+	make clean && make
+	
+usage:
+	./serverSNFS -port <port> -mount <directory to mount to>
 
 # RUNNING TESTS
 	cd tests
